@@ -2,15 +2,15 @@
 from math import pi
 
 #Returns volume of cylinder given radius and length
-def findVolumeCylinder(r,l):
+def find_volume_cylinder(r,l):
     return pi * r * r * l
 
 #Converts diameter to radius (divide it by two)
-def diameterToRadius(d):
+def diameter_to_radius(d):
     return d/2
 
 #Converts value in inches to metres
-def inchesToMetres(inches):
+def inches_to_metres(inches):
     return inches / 39.37
 
 #Oxidizer tank dimensions (inches and cubic inches)
@@ -18,50 +18,50 @@ def inchesToMetres(inches):
 class TankDimensionsInches:
     diameter = (None, 2.5, 3, 3.625, 3, 2.5)
     length = (None, 0.5, 0.75, 37.125, 0.75, 0.875)
-    radius = (None, diameterToRadius(diameter[1]), diameterToRadius(diameter[2]), diameterToRadius(diameter[3]), diameterToRadius(diameter[4]), diameterToRadius(diameter[5]))
-    volume = (None, findVolumeCylinder(radius[1],length[1]), findVolumeCylinder(radius[2],length[2]),findVolumeCylinder(radius[3],length[3]),findVolumeCylinder(radius[4],length[4]),findVolumeCylinder(radius[5],length[5]))
+    radius = (None, diameter_to_radius(diameter[1]), diameter_to_radius(diameter[2]), diameter_to_radius(diameter[3]), diameter_to_radius(diameter[4]), diameter_to_radius(diameter[5]))
+    volume = (None, find_volume_cylinder(radius[1],length[1]), find_volume_cylinder(radius[2],length[2]),find_volume_cylinder(radius[3],length[3]),find_volume_cylinder(radius[4],length[4]),find_volume_cylinder(radius[5],length[5]))
 
-    totalLength = sum(length, 1)
-    totalVolume = sum(volume, 1)
+    total_length = sum(length, 1)
+    total_volume = sum(volume, 1)
 
 #Oxidizer tank dimensions (metres and cubic metres)
 #Uses values from TankDimensionsInches to calculate metric equivalents
 class TankDimensionsMetres:
     diameter = (None, inchesToMetres(TankDimensionsInches.diameter[1]), inchesToMetres(TankDimensionsInches.diameter[2]), inchesToMetres(TankDimensionsInches.diameter[3]), inchesToMetres(TankDimensionsInches.diameter[4]), inchesToMetres(TankDimensionsInches.diameter[5]))
     length = (None, inchesToMetres(TankDimensionsInches.length[1]), inchesToMetres(TankDimensionsInches.length[2]), inchesToMetres(TankDimensionsInches.length[3]), inchesToMetres(TankDimensionsInches.length[4]), inchesToMetres(TankDimensionsInches.length[5]))
-    radius = (None, diameterToRadius(diameter[1]), diameterToRadius(diameter[2]), diameterToRadius(diameter[3]), diameterToRadius(diameter[4]), diameterToRadius(diameter[5]))
-    volume = (None, findVolumeCylinder(radius[1],length[1]), findVolumeCylinder(radius[2],length[2]),findVolumeCylinder(radius[3],length[3]),findVolumeCylinder(radius[4],length[4]),findVolumeCylinder(radius[5],length[5]))
+    radius = (None, diameter_to_radius(diameter[1]), diameter_to_radius(diameter[2]), diameter_to_radius(diameter[3]), diameter_to_radius(diameter[4]), diameter_to_radius(diameter[5]))
+    volume = (None, find_volume_cylinder(radius[1],length[1]), find_volume_cylinder(radius[2],length[2]),find_volume_cylinder(radius[3],length[3]),find_volume_cylinder(radius[4],length[4]),find_volume_cylinder(radius[5],length[5]))
 
     #sum of lengths and volumes
-    totalLength = sum(length, 1)
-    totalVolume = sum(volume, 1)
+    total_length = sum(length, 1)
+    total_volume = sum(volume, 1)
 
 #Properties of Nitrous Oxide (taken from ESDU 91022)
 class NitrousOxideProperties:
-    criticalTemp = 309.57        #kelvin (k)
-    criticalPressure = 7251      #kilopascals (kPa)
-    criticalDensity = 452        #kilograms per metres cubed (kg/m^3)
+    critical_temp = 309.57        #kelvin (k)
+    critical_pressure = 7251      #kilopascals (kPa)
+    critical_density = 452        #kilograms per metres cubed (kg/m^3)
 
 #Constants for equations 4.1, 4.2, 4.3 (taken from ESDU 91022)
 class EquationConstants:
-    Eqn4_1 = (None,-6.71893, 1.35966, -1.3779, -4.051)
-    Eqn4_2 = (None, 1.72328, -0.8395, 0.5106, -0.10412)
-    Eqn4_3 = (None, -1.009, -6.28792, 7.50332, -7.90463, 0.629427)
+    eqn4_1 = (None,-6.71893, 1.35966, -1.3779, -4.051)
+    eqn4_2 = (None, 1.72328, -0.8395, 0.5106, -0.10412)
+    eqn4_3 = (None, -1.009, -6.28792, 7.50332, -7.90463, 0.629427)
 
 #Engine Information
 class EngineInfo:
     #Distance from the bottom of the fuel grain to the bottom of the oxidizer tank
-    distToTankStart = 25          #inches (in)
+    dist_to_tank_start = 25          #inches (in)
 
-    fuelGrainLength = 24          #inches (in)
-    fuelGrainInitMass = 6.929129  #pounds (lb)
-    fuelGrainFinalMass = 2.69     #pounds (lb)
+    fuel_grain_length = 24           #inches (in)
+    fuel_grain_init_mass = 6.929129  #pounds (lb)
+    fuel_grain_final_mass = 2.69     #pounds (lb)
 
     #need to update this later but im too lazy to do that now so will get to it when I get to it
     #Used by OpenRocket
-    initWt = 0                    #grams (g)
-    propWt = 0                    #grams (g)
+    initWt = 0                       #grams (g)
+    propWt = 0                       #grams (g)
 
 class TestConditions:
-    localAtmosPressure = 14.383   #pounds per square inch (psi)
-    waterUsedForHeating = 15      #pounds (lb)
+    local_atmos_pressure = 14.383    #pounds per square inch (psi)
+    water_used_for_heating = 15      #pounds (lb)
