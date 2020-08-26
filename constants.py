@@ -13,6 +13,9 @@ def diameter_to_radius(d):
 def inches_to_metres(inches):
     return inches / 39.37
 
+def pascals_to_psi(pascals):
+    return pascals * 0.00014503773
+
 #Oxidizer tank dimensions (inches and cubic inches)
 #Tank can be divided into 5 parts, represented by 5 different diameters and lengths
 class TankDimensionsInches:
