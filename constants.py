@@ -69,8 +69,8 @@ class TankDimensionsInches:
        find_volume_cylinder(radius[4],length[4]),find_volume_cylinder(radius[5],length[5]))
 
     #sum of lengths and volumes of each segment
-    total_length = sum(length, 1)
-    total_volume = sum(volume, 1)
+    total_length = sum(length[1:])
+    total_volume = sum(volume[1:])
 
 #Oxidizer tank dimensions (metres and cubic metres)
 #Uses values from TankDimensionsInches to calculate metric equivalents
@@ -102,8 +102,8 @@ class TankDimensionsMetres:
        find_volume_cylinder(radius[4],length[4]),find_volume_cylinder(radius[5],length[5]))
 
     #sum of lengths and volumes of each segment
-    total_length = sum(length, 1)
-    total_volume = sum(volume, 1)
+    total_length = sum(length[1:])
+    total_volume = sum(volume[1:])
 
 class NitrousOxideProperties:
     '''
