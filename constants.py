@@ -81,17 +81,17 @@ class TankDimensionsMetres:
     Uses values from TankDimensionsINches to calculate metric equivalents of the same dimensions.
     '''
     #Diameter of each tank segment, d1 = index 1, d2 = index 2, etc...
-    diameter = (None, inchesToMetres(TankDimensionsInches.diameter[1]),\
-       inchesToMetres(TankDimensionsInches.diameter[2]),\
-       inchesToMetres(TankDimensionsInches.diameter[3]),\
-       inchesToMetres(TankDimensionsInches.diameter[4]),\
-       inchesToMetres(TankDimensionsInches.diameter[5]))
+    diameter = (None, inches_to_metres(TankDimensionsInches.diameter[1]),\
+       inches_to_metres(TankDimensionsInches.diameter[2]),\
+       inches_to_metres(TankDimensionsInches.diameter[3]),\
+       inches_to_metres(TankDimensionsInches.diameter[4]),\
+       inches_to_metres(TankDimensionsInches.diameter[5]))
     #Length of each tank segment, l1 = index 1, l2 = index 2, etc...
-    length = (None, inchesToMetres(TankDimensionsInches.length[1]),\
-       inchesToMetres(TankDimensionsInches.length[2]),\
-       inchesToMetres(TankDimensionsInches.length[3]),\
-       inchesToMetres(TankDimensionsInches.length[4]),\
-       inchesToMetres(TankDimensionsInches.length[5]))
+    length = (None, inches_to_metres(TankDimensionsInches.length[1]),\
+       inches_to_metres(TankDimensionsInches.length[2]),\
+       inches_to_metres(TankDimensionsInches.length[3]),\
+       inches_to_metres(TankDimensionsInches.length[4]),\
+       inches_to_metres(TankDimensionsInches.length[5]))
     #Radius of each tank segment, r1 = index 1, r2 = index 2, etc...
     radius = (None, diameter_to_radius(diameter[1]), diameter_to_radius(diameter[2]),\
        diameter_to_radius(diameter[3]), diameter_to_radius(diameter[4]),\
