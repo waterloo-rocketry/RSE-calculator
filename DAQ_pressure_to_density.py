@@ -49,6 +49,7 @@ class DAQPressureToDensity:
             result = frac + self.vapour_pressure_data.t_kelvin[self.index_with_closest_p[i]]/\
                 NitrousOxideProperties.critical_temp
             self.t_reduced.append(result)
+            i += 1
 
     def eqn4_2(curr_one_minus_t_reduced):
         '''
@@ -91,18 +92,25 @@ class DAQPressureToDensity:
         DAQ_data: DAQRaw Object
             Object containing all input data (input oxidizer tank pressure)
         '''
+        #Data from VapourPressureCalculations
         self.vapour_pressure_data = VapourPressureCalculations()
+        #Index of vapour pressure value closest to DAQ pressure
         self.index_with_closest_p = [find_closest_match(x, vapour_pressure_data.pressure_psi)\
            for x in DAQ_data.tank_pressure_psia]
+        #Closest vapour pressure value (<=) to DAQ pressure
         self.closest_p = [vapour_pressure_data.pressure_psi[x] for x in self.index_with_closest_p]
+        #Value right after closest vapour pressure value
         self.next_p = [vapour_pressure_data.pressure_psi[x + 1] for x in self.index_with_closest_p]
         
+        #Define and calculate reduced temperatures
         self.t_reduced = []
         calculate_reduced_temp()
 
+        #Intermediate math
         self.one_minus_t_reduced = [1 - x for x in self.t_reduced]
         self.reciprocal_t_reduced_minus_one = [(1 / x) - 1 for x in self.t_reduced]
-        
-        self.density_liquid = [eqn4_2(x) for x in self.one_minus_t_reduced]
-        self.density_gas = [eqn4_3(x) for x in self.reciprocal_t_reduced_minus_one]
+
+        #Lists of liquid and gasseous densities        
+        self.density_liquid_kg_m3 = [eqn4_2(x) for x in self.one_minus_t_reduced]
+        self.density_gas_kg_m3 = [eqn4_3(x) for x in self.reciprocal_t_reduced_minus_one]
         
