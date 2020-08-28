@@ -48,6 +48,17 @@ def pascals_to_psi(pascals):
     '''
     return pascals * 0.00014503773
 
+def pounds_to_kg(pounds):
+    '''
+    Converts value in pounds to kg
+
+    Parameters
+    ----------
+    pounds: float
+        Value in pounds to be converted to kilogram
+    '''
+    return 0.45359237 * pounds
+
 class TankDimensionsInches:
     '''
     Oxidizer tank dimensions given in inches and cubic inches.
