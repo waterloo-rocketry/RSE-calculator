@@ -2,7 +2,9 @@ from constants import TestConditions as test_cond
 
 class DAQRaw():
     '''
-    A struct for holding all the data arrays for the raw DAQ data. 
+    A class for holding all the data arrays for the raw DAQ data.
+    
+    It self-calculates all remaining fields during initialization. 
     '''
 
     def __init__(self, i_time_s, i_tank_pressure_psig, i_recorded_mass, i_thrust):

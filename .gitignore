@@ -1,5 +1,8 @@
+# Pycache
 
 __pycache__
 
+# IDE directories
+
 .pydevproject
-.pydev
+.project

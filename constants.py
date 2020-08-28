@@ -78,7 +78,7 @@ class TankDimensionsMetres:
     '''
     Oxidizer tank dimensions given in metres and cubic metres.
 
-    Uses values from TankDimensionsINches to calculate metric equivalents of the same dimensions.
+    Uses values from TankDimensionsInches to calculate metric equivalents of the same dimensions.
     '''
     #Diameter of each tank segment, d1 = index 1, d2 = index 2, etc...
     diameter = (None, inches_to_metres(TankDimensionsInches.diameter[1]),\
