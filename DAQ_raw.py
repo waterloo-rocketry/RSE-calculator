@@ -7,7 +7,7 @@ class DAQRaw():
     It self-calculates all remaining fields during initialization. 
     '''
 
-    def __init__(self, i_time_s, i_tank_pressure_psig, i_recorded_mass, i_thrust):
+    def __init__(self, i_time_s, i_tank_pressure_psig, i_recorded_mass_lb, i_thrust_lb):
         '''
         Initializes all base values.
 
@@ -30,9 +30,9 @@ class DAQRaw():
         self.time_s = i_time_s
         self.tank_pressure_psig = i_tank_pressure_psig
         self.tank_pressure_psia = None
-        self.recorded_mass_lb = i_recorded_mass
+        self.recorded_mass_lb = i_recorded_mass_lb
         self.adjusted_mass_lb = None
-        self.thrust_lb = i_thrust
+        self.thrust_lb = i_thrust_lb
 
         self.self_calculate_remaining_values()
 

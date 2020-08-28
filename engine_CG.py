@@ -6,7 +6,7 @@ import constants as consts
 #from NOS_liquid_CG import NOSLiquidCG # Does not exist yet
 class EngineCG():
     '''
-    A class for holding all the data arrays for Engine CG.
+    A class for holding all the data arrays for Engine CG calculations.
 
     It self-calculates all remaining fields during initialization.
     '''
@@ -32,11 +32,12 @@ class EngineCG():
         self.NOS_vap_CG = i_NOS_vap_CG
         self.NOS_liq_CG = i_NOS_liq_CG
 
+        # Remaining spreadsheet values are direct copies of columns from other sheets
         self.NOS_CG = None
         self.fuel_mass = None
-        self.fuel_CG = consts.EngineInfo.fuel_grain_length / 2
-        self.propellant_mass = None
-        self.propellant_CG = None
+        self.fuel_CG_in = consts.EngineInfo.fuel_grain_length / 2
+        self.propellant_mass_lb = None
+        self.propellant_CG_in = None
 
         self.self_calculate_remaining_values()
 
