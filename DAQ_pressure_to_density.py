@@ -18,7 +18,7 @@ class DAQPressureToDensity:
         Parameters
         ----------
         value: float
-            Value to be compared against matching_array; seek to find closest equivalent in matching_array.
+            Value to be compared against matching_array.
         matching_array: list of floats
             List of floats in increasing order where the closest match will occur.
         '''
@@ -41,10 +41,13 @@ class DAQPressureToDensity:
        
         i = 0 #Current index being visited
 
-        #Iterate through every tank pressure (all columns are same length so doesnt matter which length is checked here)
+        #Iterate through every tank pressure
+        #All columns are same length so doesnt matter which length is checked here
         while i < len(self.closest_p):
-            frac = (DAQ_data.tank_pressure_psia[i] - self.closest_p[i]) / (self.next_p[i] - self.closest_p[i])
-            result = frac + self.vapour_pressure_data.t_kelvin[self.index_with_closest_p[i]] / NitrousOxideProperties.critical_temp
+            frac = (DAQ_data.tank_pressure_psia[i] - self.closest_p[i])/\
+                (self.next_p[i] - self.closest_p[i])
+            result = frac + self.vapour_pressure_data.t_kelvin[self.index_with_closest_p[i]]/\
+                NitrousOxideProperties.critical_temp
             self.t_reduced.append(result)
 
     def eqn4_2(curr_one_minus_t_reduced):
@@ -56,9 +59,10 @@ class DAQPressureToDensity:
         curr_one_minus_t_reduced: float
             Equal to one minus the reduced temperature
         '''
-        result = NitrousOxideProperties.critical_density * exp(EquationConstants.eqn4_2[1] * curr_one_minus_t_reduced**(1/3) +\
-            EquationConstants.eqn4_2[2] * curr_one_minus_t_reduced**(2/3) + EquationConstants.eqn4_2[3] * curr_one_minus_t_reduced +\
-            EquationConstants.eqn4_2[4] * curr_one_minues_t_reduced**(4/3))
+        result = NitrousOxideProperties.critical_density*exp(EquationConstants.eqn4_2[1]*\
+            curr_one_minus_t_reduced**(1/3)+EquationConstants.eqn4_2[2]*\
+            curr_one_minus_t_reduced**(2/3)+EquationConstants.eqn4_2[3]*\
+            curr_one_minus_t_reduced+EquationConstants.eqn4_2[4]*curr_one_minues_t_reduced**(4/3))
         return result
 
     def eqn4_3(curr_recip_t_reduced_minus_one):
@@ -70,10 +74,12 @@ class DAQPressureToDensity:
         curr_recip_t_reduced_minus_one: float
             Equal to the reciprocal of reduced temperature minus one
         '''
-        result = NitrousOxideProperties.critical_density * exp(EquationConstants.eqn4_3[1] * curr_recip_t_reduced_minus_one**(1/3) +\
-            EquationConstants.eqn4_3[2] * curr_recip_t_reduced_minus_one**(2/3) + EquationConstants.eqn4_3[3] * curr_recip_t_reduced_minus_one +\
-            EquationConstants.eqn4_3[4] * curr_recip_t_reduced_minus_one**(4/3) + EquationConstants.eqn4_3[4] * curr_recip_t_reduced_minus_one**(5/3))
-
+        result = NitrousOxideProperties.critical_density * exp(EquationConstants.eqn4_3[1]*\
+            curr_recip_t_reduced_minus_one**(1/3)+EquationConstants.eqn4_3[2]*\
+            curr_recip_t_reduced_minus_one**(2/3)+EquationConstants.eqn4_3[3]*\
+            curr_recip_t_reduced_minus_one+EquationConstants.eqn4_3[4]*\
+            curr_recip_t_reduced_minus_one**(4/3)+EquationConstants.eqn4_3[4]*\
+            curr_recip_t_reduced_minus_one**(5/3))
         return result
 
     def __init__(self, DAQ_data):
@@ -86,7 +92,8 @@ class DAQPressureToDensity:
             Object containing all input data (input oxidizer tank pressure)
         '''
         self.vapour_pressure_data = VapourPressureCalculations()
-        self.index_with_closest_p = [find_closest_match(x, vapour_pressure_data.pressure_psi) for x in DAQ_data.tank_pressure_psia]
+        self.index_with_closest_p = [find_closest_match(x, vapour_pressure_data.pressure_psi)\
+           for x in DAQ_data.tank_pressure_psia]
         self.closest_p = [vapour_pressure_data.pressure_psi[x] for x in self.index_with_closest_p]
         self.next_p = [vapour_pressure_data.pressure_psi[x + 1] for x in self.index_with_closest_p]
         
