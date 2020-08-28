@@ -1,6 +1,7 @@
 import csv
 from DAQ_raw import DAQRaw
 
+TEST = 1
 
 class CSVExtractor():
     '''
@@ -41,6 +42,11 @@ class CSVExtractor():
         label_table = reader[0]
         print(label_table)
 
+        time_col_idx = -1
+        tank_pressure_col_idx = -1
+        recorded_mass_col_id = -1
+        thrust_col_idx = -1
+
         for idx, itm in enumerate(label_table): 
             if (itm == 'Time (s)'):
                 time_col_idx = idx
@@ -48,13 +54,20 @@ class CSVExtractor():
                 tank_pressure_col_idx = idx
             if (itm == 'Recorded mass (lb)'):
                 recorded_mass_col_idx = idx
-            if (itm == 'Thurst (lb)'):
-                thurst_col_idx = idx
+            if (itm == 'Thrust (lb)'):
+                thrust_col_idx = idx
+
+        if (time_col_idx == -1 or tank_pressure_col_idx == -1 \
+                or recorded_mass_col_idx == -1 or thrust_col_idx == -1):
+            time_col_idx = 0
+            tank_pressure_col_idx = 1
+            recorded_mass_col_idx = 2
+            thrust_col_idx = 3
 
         DAQ_times = []
         DAQ_tank_pressures = []
         DAQ_recorded_masses = []
-        DAQ_thurst_values = []
+        DAQ_thrust_values = []
 
         for row_idx in range(1,len(reader)):
             DAQ_times.append(reader[row_idx][time_col_idx])
@@ -62,4 +75,13 @@ class CSVExtractor():
             DAQ_recorded_masses.append(reader[row_idx][recorded_mass_col_idx])
             DAQ_thrust_values.append(reader[row_idx][thrust_col_idx])
             
-        return DAQRaw(DAQ_times, DAQ_tank_pressures, DAQ_recorded_masses, DAQ_thurst_values)
+        return DAQRaw(DAQ_times, DAQ_tank_pressures, DAQ_recorded_masses, DAQ_thrust_values)
+
+# Testing code, to be implemented into a unti test later
+# if __name__ == "__main__":
+#     print('Extractor test active!')
+#     ext = CSVExtractor()
+#     dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
+#     print(dat)
+#     print(dat.time_s)
+    
