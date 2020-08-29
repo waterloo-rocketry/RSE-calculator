@@ -77,11 +77,17 @@ class CSVExtractor():
             
         return DAQRaw(DAQ_times, DAQ_tank_pressures, DAQ_recorded_masses, DAQ_thrust_values)
 
-# Testing code, to be implemented into a unti test later
-# if __name__ == "__main__":
-#     print('Extractor test active!')
-#     ext = CSVExtractor()
-#     dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
-#     print(dat)
-#     print(dat.time_s)
+# Testing code, to be implemented into a unit test later
+if __name__ == "__main__":
+    print('Extractor test active!')
+    ext = CSVExtractor()
+    dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
     
+    test_file = open('csv_extractor_test.csv','w')
+
+    i = 0
+    while i < len(dat.time_s):
+        print(f'{dat.time_s[i]},{dat.tank_pressure_psig[i]},{dat.tank_pressure_psia[i]},{dat.recorded_mass_lb[i]},{dat.adjusted_mass_lb[i]},{dat.thrust_lb[i]}\n')
+        i+=1
+
+    test_file.close()

@@ -43,5 +43,5 @@ class DAQRaw():
         self.tank_pressure_psia = [float(tp_psig_val) + test_cond.local_atmos_pressure \
                 for tp_psig_val in self.tank_pressure_psig]
 
-        self.adjusted_mass_lb = [float(rec_mass_lb_val) + test_cond.water_used_for_heating \
+        self.adjusted_mass_lb = [float(rec_mass_lb_val) - test_cond.water_used_for_heating \
                 for rec_mass_lb_val in self.recorded_mass_lb]

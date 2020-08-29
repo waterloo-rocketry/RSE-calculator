@@ -41,7 +41,7 @@ class NOSMassAndVolume:
 
         #Define and calculate volume of liquid in m^3
         self.liquid_volume_m3 = []
-        calculate_liquid_volume()
+        self.calculate_liquid_volume()
 
         #Calculate volume of vapour in m^3
         self.vapour_volume_m3 = [TankDimensionsMetres.total_volume - x\
@@ -53,5 +53,20 @@ class NOSMassAndVolume:
         self.vapour_mass_kg = [x*y for x,y in\
             zip(self.DAQ_pressure_to_density_data.density_gas_kg_m3, self.vapour_volume_m3)]
 
+if __name__ == '__main__':
+    from csv_extractor import CSVExtractor
 
+    ext = CSVExtractor()
+    raw_dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
+    test_data = NOSMassAndVolume(raw_dat)
+    test_file = open('NOS_mass_and_volume_test.csv','w')
 
+    i = 0
+    while i < len(test_data.NOS_mass_kg):
+        test_file.write(f'{raw_dat.time_s[i]},{raw_dat.adjusted_mass_lb[i]},'+\
+            f'{test_data.NOS_mass_kg[i]},{test_data.DAQ_pressure_to_density_data.density_liquid_kg_m3[i]},'+\
+            f'{test_data.DAQ_pressure_to_density_data.density_gas_kg_m3[i]},{test_data.liquid_volume_m3[i]},{test_data.vapour_volume_m3[i]},'+\
+            f'{test_data.liquid_mass_kg[i]},{test_data.vapour_mass_kg[i]},\n')
+        i += 1
+
+    test_file.close()

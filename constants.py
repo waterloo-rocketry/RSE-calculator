@@ -120,9 +120,9 @@ class NitrousOxideProperties:
     '''
     Properties of Nitrous Oxide (taken from ESDU 91022).
     '''
-    critical_temp = 309.57        #kelvin (k)
-    critical_pressure = 7251      #kilopascals (kPa)
-    critical_density = 452        #kilograms per metres cubed (kg/m^3)
+    critical_temp = 309.57          #kelvin (k)
+    critical_pressure = 7251.0      #kilopascals (kPa)
+    critical_density = 452.0        #kilograms per metres cubed (kg/m^3)
 
 class EquationConstants:
     '''
