@@ -59,6 +59,17 @@ def pounds_to_kg(pounds):
     '''
     return 0.45359237 * pounds
 
+def pounds_to_N(pounds):
+    '''
+    Converts value in pounds force to newtons
+    
+    Parameters
+    ----------
+    pounds: float
+        Value in pounds to be converted to newtons
+    '''
+    return 4.44822 * pounds
+
 class TankDimensionsInches:
     '''
     Oxidizer tank dimensions given in inches and cubic inches.

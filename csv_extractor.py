@@ -83,11 +83,14 @@ if __name__ == "__main__":
     ext = CSVExtractor()
     dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
     
-    test_file = open('csv_extractor_test.csv','w')
+    writer = open('csv_extractor_test.csv','w')
 
     i = 0
     while i < len(dat.time_s):
-        print(f'{dat.time_s[i]},{dat.tank_pressure_psig[i]},{dat.tank_pressure_psia[i]},{dat.recorded_mass_lb[i]},{dat.adjusted_mass_lb[i]},{dat.thrust_lb[i]}\n')
+        w_string = f'{dat.time_s[i]},{dat.tank_pressure_psig[i]},{dat.tank_pressure_psia[i]},' +\
+                f'{dat.recorded_mass_lb[i]},{dat.adjusted_mass_lb[i]},{dat.thrust_lb[i]}\n'
         i+=1
+        print(w_string, '')
+        writer.write(w_string)
 
-    test_file.close()
+    writer.close()
