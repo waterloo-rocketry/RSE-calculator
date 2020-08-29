@@ -35,7 +35,19 @@ def inches_to_metres(inches):
     inches: float
         Value in inches to be converted to metres.
     '''
-    return inches / 39.37
+    return inches / 39.37007874
+
+def metres_to_inches(metres):
+    '''
+    Converts value in metres to inches
+
+    Parameters
+    ----------
+    metres: float
+        Value in metres to be converted to inches
+    '''
+
+    return metres * 39.37007874
 
 def pascals_to_psi(pascals):
     '''
@@ -58,6 +70,18 @@ def pounds_to_kg(pounds):
         Value in pounds to be converted to kilogram
     '''
     return 0.45359237 * pounds
+
+def kg_to_pounds(kg):
+    '''
+    Converts value in kg to pounds
+
+    Parameters
+    ----------
+    kg: float
+        Value in kg to be converted to pounds
+    '''
+
+    return 2.20462262185 * kg
 
 def pounds_to_N(pounds):
     '''
