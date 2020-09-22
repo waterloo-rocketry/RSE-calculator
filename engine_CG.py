@@ -1,7 +1,7 @@
 import constants as consts
 
 from DAQ_raw import DAQRaw
-from NOS_vapor_CG import NOSVapourCG
+from NOS_vapour_CG import NOSVapourCG
 from NOS_liquid_CG import NOSLiquidCG
 
 
@@ -53,9 +53,18 @@ class EngineCG():
         self.fuel_mass_lb = [self.calculate_fuel_mass_value(time_stamp) for \
                 time_stamp in self.DAQ_data.time_s]
 
-        self.propellant_mass_lb = [self.fuel_mass_lb[idx] + self.DAQ_data.adjusted_mass_lb[idx] for \
-                idx in range(len(self.DAQ_data.time_s))]
-
+        self.propellant_mass_lb = [self.fuel_mass_lb[idx] + self.DAQ_data.adjusted_mass_lb[idx] \
+                for idx in range(len(self.DAQ_data.time_s))]
+        
+        y_OS = consts.EngineInfo.dist_to_tank_start
+        fuel_CG = 12
+        self.propellant_CG_in = [(self.DAQ_data.adjusted_mass_lb[idx]*(self.NOS_CG_in[idx] + y_OS)\
+                 + self.fuel_mass_lb[idx]*fuel_CG)/self.propellant_mass_lb[idx] \
+                 for idx in range(len(self.DAQ_data.time_s))]
+        
+        if (False):
+            for val in self.propellant_CG_in:
+                print(val)
 
     def calculate_NOS_CG_value(self, val_idx):
         '''
@@ -75,7 +84,7 @@ class EngineCG():
         '''
 
         result = (self.NOS_liq_CG.liquid_mass_lb[val_idx]*self.NOS_liq_CG.liquid_CG_in[val_idx] +\
-                self.NOS_vap_CG.vapour_mass_lb[val_idx]*self.NOS_liq_CG.vapour_CG_in[val_idx])
+                self.NOS_vap_CG.vapour_mass_lb[val_idx]*self.NOS_vap_CG.vapour_CG_in[val_idx])
         result /= (self.NOS_liq_CG.liquid_mass_lb[val_idx] +\
                 self.NOS_vap_CG.vapour_mass_lb[val_idx])
         
@@ -97,11 +106,12 @@ class EngineCG():
         float:
             The fuel mass value for the given time stamp.
         '''
-        with consts.EngineInfo.fuel_grain_intial_mass as m_FI, \
-                 consts.EngineInfo.fuel_grain_final_mass as m_FF, \
-                 self.DAQ_data.time_s as time:
+        m_FI = consts.EngineInfo.fuel_grain_init_mass
+        m_FF = consts.EngineInfo.fuel_grain_final_mass
+        time = self.DAQ_data.time_s 
 
-            result = float(m_FI - ((m_FI-m_FF)/(time[-1] - time[0]))*(time_stamp - time[0]))
+#TODO: change this back after testing!!!
+        result = float(m_FI - ((m_FI-m_FF)/(time[201] - time[0]))*(time_stamp - time[0]))
 
         return result
     

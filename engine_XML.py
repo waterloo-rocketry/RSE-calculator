@@ -44,8 +44,8 @@ class EngineXML:
         '''
         Calculates the remaining values that were not given during initialization.
         '''
-        with self.DAQ_data.time_s as time:
-            self.zeroed_time = [time[idx] - time[0] for idx in range(len(time))]
+        time = self.DAQ_data.time_s
+        self.zeroed_time = [time[idx] - time[0] for idx in range(len(time))]
 
         self.thrust_N = [self.DAQ_data.thrust_lb]
 
@@ -65,12 +65,14 @@ class EngineXML:
         result = consts.TankDimensionsMetres.total_length*1000
         result += consts.inches_to_metres(consts.EngineInfo.dist_to_tank_start)*1000
         result -= consts.inches_to_metres(prop_CG_in_val)*1000
+        return result
 
     def prepare_XML_tag_for_data_point(self, data_point_idx):
         XML_tag = ''
         XML_tag += '<eng_data t=\"'
         XML_tag += str(round(self.zeroed_time[data_point_idx], 2)) + '\" '
         XML_tag += 'f=\"' + str(round(self.thrust_N[data_point_idx], 2)) + '\" '
-        XML_tag += 'm=\"' + str(round(self.engine_mass_g[data_point_idx], 2)) + '\" '
-        XML_tag += 'cg=\"' + str(round(self.propellant_CG_mm[data_point_idx], 2)) + '\"/>'
+        XML_tag += 'm=\"' + str(round(self.engine_mass_g[data_point_idx], 3)) + '\" '
+        XML_tag += 'cg=\"' + str(round(self.propellant_CG_mm[data_point_idx], 3)) + '\"/>'
+        return XML_tag
         

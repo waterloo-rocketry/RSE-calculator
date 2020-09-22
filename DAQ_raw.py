@@ -27,12 +27,12 @@ class DAQRaw():
             The recorded thrust at each timestamp
         '''
 
-        self.time_s = i_time_s
-        self.tank_pressure_psig = i_tank_pressure_psig
+        self.time_s = [float(time) for time in i_time_s]
+        self.tank_pressure_psig = [float(val) for val in i_tank_pressure_psig]
         self.tank_pressure_psia = None
-        self.recorded_mass_lb = i_recorded_mass_lb
+        self.recorded_mass_lb = [float(val) for val in i_recorded_mass_lb]
         self.adjusted_mass_lb = None
-        self.thrust_lb = i_thrust_lb
+        self.thrust_lb = [float(val) for val in i_thrust_lb]
 
         self.self_calculate_remaining_values()
 

@@ -96,7 +96,7 @@ class DAQPressureToDensity:
         DAQ_data: DAQRaw Object
             Object containing all input data (input oxidizer tank pressure)
         '''
-        self.debug = True
+        self.debug = False
         #Data from VapourPressureCalculations
         self.vapour_pressure_data = VapourPressureCalculations()
         #Index of vapour pressure value closest to DAQ pressure
