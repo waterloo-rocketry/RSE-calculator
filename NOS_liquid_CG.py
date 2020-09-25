@@ -1,8 +1,9 @@
+from math import pi
+
 from constants import TankDimensionsMetres
 from constants import kg_to_pounds
 from constants import metres_to_inches
 from NOS_mass_and_volume import NOSMassAndVolume
-from math import pi
 
 class NOSLiquidCG:
     '''
@@ -60,14 +61,14 @@ class NOSLiquidCG:
         for vol,case,liq_height,density in zip(self.NOS_mass_and_volume_data.liquid_volume_m3,\
             self.case,self.liquid_height_m,\
             self.NOS_mass_and_volume_data.DAQ_pressure_to_density_data.density_liquid_kg_m3):
-            
+
             numerator = 0
 
             #Case 0 is special (no filled cylinders)
             if case == 0:
                 numerator = TankDimensionsMetres.volume[1] * density * liq_height / 2 *\
                    vol * density
-            
+
             #General case
             else:
                 i = 0
@@ -79,7 +80,7 @@ class NOSLiquidCG:
                 #Accounting for partially filled cylinder
                 numerator += (liq_height + sum(TankDimensionsMetres.length[1:case + 1]))/2*\
                     (vol-sum(TankDimensionsMetres.volume[1:case + 1]))*density
-          
+
             self.liquid_CG_m.append(numerator/(vol*density))
 
     def __init__(self, i_NOS_mass_and_volume):
@@ -106,13 +107,13 @@ class NOSLiquidCG:
         self.liquid_mass_lb = [kg_to_pounds(x) for x in \
             self.NOS_mass_and_volume_data.liquid_mass_kg]
         self.liquid_CG_in = [metres_to_inches(x) for x in self.liquid_CG_m]
-  
+
 if __name__ == "__main__":
     from csv_extractor import CSVExtractor
 
     ext = CSVExtractor()
     raw_dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
-    
+
     test_data = NOSLiquidCG(NOSMassAndVolume(raw_dat))
     test_file = open('NOS_liquid_CG_test.csv','w')
 

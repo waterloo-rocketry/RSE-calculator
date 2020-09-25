@@ -1,10 +1,12 @@
 #!/usr/bin/env/python
 
+from math import e
+
 from vapour_pressure_calculations import VapourPressureCalculations
-from DAQ_raw import DAQRaw
+
 from constants import NitrousOxideProperties
 from constants import EquationConstants
-from math import e
+
 
 class DAQPressureToDensity:
     '''
@@ -42,7 +44,7 @@ class DAQPressureToDensity:
         Uses linear interpolation to calculates reduced temperature for each tank pressure.
         Stores results in self.t_reduced
         '''
-       
+
         i = 0 #Current index being visited
 
         #Iterate through every tank pressure
@@ -106,7 +108,7 @@ class DAQPressureToDensity:
         self.closest_p = [self.vapour_pressure_data.pressure_psi[x] for x in self.index_with_closest_p]
         #Value right after closest vapour pressure value
         self.next_p = [self.vapour_pressure_data.pressure_psi[x + 1] for x in self.index_with_closest_p]
-        
+
         #Define and calculate reduced temperatures
         self.t_reduced = []
         self.calculate_reduced_temp(DAQ_data)
@@ -115,7 +117,7 @@ class DAQPressureToDensity:
         self.one_minus_t_reduced = [1 - x for x in self.t_reduced]
         self.reciprocal_t_reduced_minus_one = [(1 / x) - 1 for x in self.t_reduced]
 
-        #Lists of liquid and gasseous densities        
+        #Lists of liquid and gasseous densities
         self.density_liquid_kg_m3 = [self.eqn4_2(x) for x in self.one_minus_t_reduced]
         self.density_gas_kg_m3 = [self.eqn4_3(x) for x in self.reciprocal_t_reduced_minus_one]
 

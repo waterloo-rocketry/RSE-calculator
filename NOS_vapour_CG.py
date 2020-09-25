@@ -12,6 +12,14 @@ class NOSVapourCG:
     It self-calculates all remaining fields during initialization.
     '''
     def calculate_cases(self):
+        '''
+        Calculates case values based on what volume of the tank is filled
+
+        Case 1: volume less than v1
+        Case 2: volume less than v2
+        Case 3: volume less than v3
+        Case 4: volume less than v4
+        '''
         for vol in self.NOS_mass_and_volume_data.vapour_volume_m3:
             if vol <= TankDimensionsMetres.volume[5]:
                 self.case.append(0)
@@ -24,7 +32,10 @@ class NOSVapourCG:
             elif vol > sum(TankDimensionsMetres.volume[2:]) and vol <= sum(TankDimensionsMetres.volume[1:]):
                 self.case.append(4)
 
-    def calculate_vapour_CG(self):
+    def calculate_vapour_cg(self):
+        '''
+        Calculates vapour centre of gravity as average of all CG multiplied by their masses
+        '''
         for vol,case,height,density in zip(self.NOS_mass_and_volume_data.vapour_volume_m3,\
             self.case,self.vapour_height_m,\
             self.NOS_mass_and_volume_data.DAQ_pressure_to_density_data.density_gas_kg_m3):
@@ -62,7 +73,7 @@ class NOSVapourCG:
             self.NOS_liquid_CG_data.liquid_height_m]
 
         self.vapour_CG_m = []
-        self.calculate_vapour_CG()
+        self.calculate_vapour_cg()
 
         self.vapour_mass_lb = [kg_to_pounds(x) for x in \
             self.NOS_mass_and_volume_data.vapour_mass_kg]
@@ -74,7 +85,7 @@ if __name__ == "__main__":
 
     ext = CSVExtractor()
     raw_dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
-    
+
     test_data = NOSVapourCG(NOSMassAndVolume(raw_dat),NOSLiquidCG(NOSMassAndVolume(raw_dat)))
     test_file = open('NOS_vapour_CG_test.csv','w')
 

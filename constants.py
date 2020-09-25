@@ -86,7 +86,7 @@ def kg_to_pounds(kg):
 def pounds_to_N(pounds):
     '''
     Converts value in pounds force to newtons
-    
+
     Parameters
     ----------
     pounds: float

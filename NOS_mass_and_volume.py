@@ -1,7 +1,6 @@
 from constants import pounds_to_kg
 from constants import TankDimensionsMetres
 from DAQ_pressure_to_density import DAQPressureToDensity
-from DAQ_raw import DAQRaw
 
 class NOSMassAndVolume:
     '''
@@ -21,7 +20,7 @@ class NOSMassAndVolume:
                TankDimensionsMetres.total_volume))/\
                (self.DAQ_pressure_to_density_data.density_liquid_kg_m3[i]-\
                self.DAQ_pressure_to_density_data.density_gas_kg_m3[i]) 
-            
+
             self.liquid_volume_m3.append(result)
             i += 1
 
@@ -64,8 +63,10 @@ if __name__ == '__main__':
     i = 0
     while i < len(test_data.NOS_mass_kg):
         test_file.write(f'{raw_dat.time_s[i]},{raw_dat.adjusted_mass_lb[i]},'+\
-            f'{test_data.NOS_mass_kg[i]},{test_data.DAQ_pressure_to_density_data.density_liquid_kg_m3[i]},'+\
-            f'{test_data.DAQ_pressure_to_density_data.density_gas_kg_m3[i]},{test_data.liquid_volume_m3[i]},{test_data.vapour_volume_m3[i]},'+\
+            f'{test_data.NOS_mass_kg[i]},' +\
+            f'{test_data.DAQ_pressure_to_density_data.density_liquid_kg_m3[i]},'+\
+            f'{test_data.DAQ_pressure_to_density_data.density_gas_kg_m3[i]},' +\
+            f'{test_data.liquid_volume_m3[i]},{test_data.vapour_volume_m3[i]},'+\
             f'{test_data.liquid_mass_kg[i]},{test_data.vapour_mass_kg[i]},\n')
         i += 1
 

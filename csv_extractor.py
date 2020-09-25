@@ -1,8 +1,6 @@
 import csv
 from DAQ_raw import DAQRaw
 
-TEST = 1
-
 class CSVExtractor():
     '''
     Extracts relevant data from a .csv file
@@ -37,14 +35,13 @@ class CSVExtractor():
         csvfile = open(file_path, newline='')
         reader = list(csv.reader(csvfile))
 
-        output_list = []
-
         label_table = reader[0]
-        print(label_table)
+        if self.debug_mode:
+            print(label_table)
 
         time_col_idx = -1
         tank_pressure_col_idx = -1
-        recorded_mass_col_id = -1
+        recorded_mass_col_idx = -1
         thrust_col_idx = -1
 
         for idx, itm in enumerate(label_table): 

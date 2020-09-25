@@ -59,7 +59,7 @@ class EngineXML:
 
         self.XML_tags = [self.prepare_XML_tag_for_data_point(idx) for \
                 idx in range(len(self.DAQ_data.time_s))]
-        pass
+
 
     def recalculate_propellant_CG_mm(self, prop_CG_in_val):
         result = consts.TankDimensionsMetres.total_length*1000
@@ -75,4 +75,4 @@ class EngineXML:
         XML_tag += 'm=\"' + str(round(self.engine_mass_g[data_point_idx], 3)) + '\" '
         XML_tag += 'cg=\"' + str(round(self.propellant_CG_mm[data_point_idx], 3)) + '\"/>'
         return XML_tag
-        
+
