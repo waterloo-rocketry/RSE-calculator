@@ -1,30 +1,48 @@
 from constants import pounds_to_kg
 from constants import TankDimensionsMetres
+from constants import ConstantsManager as ConstsM
+
 from DAQ_pressure_to_density import DAQPressureToDensity
+
 
 class NOSMassAndVolume:
     '''
     Use oxidizer tank mass data along with density data to calculate
     liquid and vapour NOS volumes and masses.
     '''
-    def calculate_liquid_volume(self):
+
+    @staticmethod
+    def calculate_liquid_volume(nos_mass_kg, gas_density_kg_m3, liquid_density_kg_m3, total_v_m3):
         '''
-        Uses equations for two component mixtures to calculate liquid volume at each timestep
+        Calculate the volume of the liquid
+
+        Parameters
+        ----------
+        nos_mass_kg: float
+            The weight of the NOS as a moment in time, in kg.
+        gas_density_kg_m3: float
+            The density of the gaseous NOS as a moment in time, in kg/m3.
+        liquid_density_kg_m3: float
+            The density of the liquid NOS as a moment in time, in kg/m3.
+        critical_density: float
+            The value of the critical density for nitrous oxide, a constant
+
+        Returns
+        -------
+        float:
+            The result of the calculation.
         '''
-        i = 0 #current index being visited
+        try:
+            result = (nos_mass_kg - (gas_density_kg_m3*total_v_m3))/\
+               (liquid_density_kg_m3 - gas_density_kg_m3)
+        except ZeroDivisionError:
+            print('ZeroDivisionError caught in NOS_mass_and_volume, function ' +\
+                      'calculate_liquid_volume. The gas and liquid densities as  '+\
+                      'provided to the method were equal. The total volume was returned')
+            result = total_v_m3
+        return result
 
-        #Iterate through each time step
-        #Use values from DAQ_pressure_to_density and DAQRaw
-        while i < len(self.NOS_mass_kg):
-            result = (self.NOS_mass_kg[i]-(self.DAQ_pressure_to_density_data.density_gas_kg_m3[i]*\
-               TankDimensionsMetres.total_volume))/\
-               (self.DAQ_pressure_to_density_data.density_liquid_kg_m3[i]-\
-               self.DAQ_pressure_to_density_data.density_gas_kg_m3[i]) 
-
-            self.liquid_volume_m3.append(result)
-            i += 1
-
-    def __init__(self, DAQ_data):
+    def __init__(self, DAQ_data, i_constants = None):
         '''
         Initialize all base values
 
@@ -32,7 +50,16 @@ class NOSMassAndVolume:
         ----------
         DAQ_data: DAQRaw Object
             Object containing all input data (input oxidizer tank pressure)
+        i_constants: constants.ConstantsManager
+            Object containing all the constants for the program. Default is None, in which case
+            a default object will be imported and created.
         '''
+        self.consts_m = None
+        if i_constants is None:
+            self.consts_m = ConstsM()
+        else:
+            self.consts_m = i_constants
+
         #Data from pressure_to_density calculations
         self.DAQ_pressure_to_density_data = DAQPressureToDensity(DAQ_data)
         #Mass of NOS converted to kg
@@ -40,7 +67,13 @@ class NOSMassAndVolume:
 
         #Define and calculate volume of liquid in m^3
         self.liquid_volume_m3 = []
-        self.calculate_liquid_volume()
+        #self.calculate_liquid_volume()
+
+        total_volume = self.consts_m.tank_dimensions_meters['total_volume']
+        self.liquid_volume_m3 = [self.calculate_liquid_volume(m, g, l, total_volume) \
+            for m, g, l in zip(self.NOS_mass_kg, \
+            self.DAQ_pressure_to_density_data.gas_density_kg_m3, \
+            self.DAQ_pressure_to_density_data.density_liquid_kg_m3)]
 
         #Calculate volume of vapour in m^3
         self.vapour_volume_m3 = [TankDimensionsMetres.total_volume - x\
@@ -50,23 +83,25 @@ class NOSMassAndVolume:
         self.liquid_mass_kg = [x*y for x,y in\
             zip(self.DAQ_pressure_to_density_data.density_liquid_kg_m3,self.liquid_volume_m3)]
         self.vapour_mass_kg = [x*y for x,y in\
-            zip(self.DAQ_pressure_to_density_data.density_gas_kg_m3, self.vapour_volume_m3)]
+            zip(self.DAQ_pressure_to_density_data.gas_density_kg_m3, self.vapour_volume_m3)]
 
-if __name__ == '__main__':
+def create_output_file(target_path = 'NOS_mass_and_volume_test.csv', daq_source_path =\
+         'test_csv.csv', downsample = 1):
     from csv_extractor import CSVExtractor
 
     ext = CSVExtractor()
-    raw_dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
+    raw_dat = ext.extract_data_to_raw_DAQ(daq_source_path)
     test_data = NOSMassAndVolume(raw_dat)
-    test_file = open('NOS_mass_and_volume_test.csv','w')
+    test_file = open(target_path,'w')
 
     i = 0
     while i < len(test_data.NOS_mass_kg):
-        test_file.write(f'{raw_dat.time_s[i]},{raw_dat.adjusted_mass_lb[i]},'+\
-            f'{test_data.NOS_mass_kg[i]},' +\
-            f'{test_data.DAQ_pressure_to_density_data.density_liquid_kg_m3[i]},'+\
-            f'{test_data.DAQ_pressure_to_density_data.density_gas_kg_m3[i]},' +\
-            f'{test_data.liquid_volume_m3[i]},{test_data.vapour_volume_m3[i]},'+\
+        if i % downsample == 0:
+            test_file.write(f'{raw_dat.time_s[i]},{raw_dat.adjusted_mass_lb[i]},'+\
+                f'{test_data.NOS_mass_kg[i]},' +\
+                f'{test_data.DAQ_pressure_to_density_data.density_liquid_kg_m3[i]},'+\
+                f'{test_data.DAQ_pressure_to_density_data.gas_density_kg_m3[i]},' +\
+                f'{test_data.liquid_volume_m3[i]},{test_data.vapour_volume_m3[i]},'+\
             f'{test_data.liquid_mass_kg[i]},{test_data.vapour_mass_kg[i]},\n')
         i += 1
 

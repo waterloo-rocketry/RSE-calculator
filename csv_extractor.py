@@ -22,15 +22,17 @@ class CSVExtractor():
 
         self.debug_mode = mode
 
-    def extract_data_to_raw_DAQ(self, file_path):
+    def extract_data_to_raw_DAQ(self, file_path, downsample = 1):
         '''
         Creates a DAQRaw object from the contents of the provided csv file.
-        
+
         Parameters
         ----------
 
         file_path: str
             The location of the .csv file
+        downsample: int
+            how much the output needs to be downsampled by. Default value is 1 (no downsampling).
         '''
         csvfile = open(file_path, newline='')
         reader = list(csv.reader(csvfile))
@@ -44,14 +46,14 @@ class CSVExtractor():
         recorded_mass_col_idx = -1
         thrust_col_idx = -1
 
-        for idx, itm in enumerate(label_table): 
-            if (itm == 'Time (s)'):
+        for idx, itm in enumerate(label_table):
+            if itm == 'Time (s)':
                 time_col_idx = idx
-            if (itm == 'Tank Pressure (psig)'):
+            if itm == 'Tank Pressure (psig)':
                 tank_pressure_col_idx = idx
-            if (itm == 'Recorded mass (lb)'):
+            if itm == 'Recorded mass (lb)':
                 recorded_mass_col_idx = idx
-            if (itm == 'Thrust (lb)'):
+            if itm == 'Thrust (lb)':
                 thrust_col_idx = idx
 
         if (time_col_idx == -1 or tank_pressure_col_idx == -1 \
@@ -67,27 +69,61 @@ class CSVExtractor():
         DAQ_thrust_values = []
 
         for row_idx in range(1,len(reader)):
-            DAQ_times.append(reader[row_idx][time_col_idx])
-            DAQ_tank_pressures.append(reader[row_idx][tank_pressure_col_idx])
-            DAQ_recorded_masses.append(reader[row_idx][recorded_mass_col_idx])
-            DAQ_thrust_values.append(reader[row_idx][thrust_col_idx])
-            
+            if row_idx % downsample == 0:
+                DAQ_times.append(reader[row_idx][time_col_idx])
+                DAQ_tank_pressures.append(reader[row_idx][tank_pressure_col_idx])
+                DAQ_recorded_masses.append(reader[row_idx][recorded_mass_col_idx])
+                DAQ_thrust_values.append(reader[row_idx][thrust_col_idx])
+
         return DAQRaw(DAQ_times, DAQ_tank_pressures, DAQ_recorded_masses, DAQ_thrust_values)
 
-# Testing code, to be implemented into a unit test later
-if __name__ == "__main__":
-    print('Extractor test active!')
-    ext = CSVExtractor()
-    dat = ext.extract_data_to_raw_DAQ('test_csv.csv')
-    
-    writer = open('csv_extractor_test.csv','w')
+    def downsample_file(self, target_file_path, new_file_path = None, downsample = 10,
+                    downsample_offset = 0, data_possesses_header = False):
+        '''
+        Downsamples a given csv file into another file.
 
-    i = 0
-    while i < len(dat.time_s):
-        w_string = f'{dat.time_s[i]},{dat.tank_pressure_psig[i]},{dat.tank_pressure_psia[i]},' +\
-                f'{dat.recorded_mass_lb[i]},{dat.adjusted_mass_lb[i]},{dat.thrust_lb[i]}\n'
-        i+=1
-        print(w_string, '')
-        writer.write(w_string)
+        This is mostly intended for one-time command line use. Note that for subdirectories
+        double backslashes should be used.
 
-    writer.close()
+        Parameters
+        ----------
+
+        target_file_path: str
+            The location of the .csv file to be downsampled.
+        new_file_path: str
+            The location of the output file where the downsampled data should go. Default
+            value is None, which gets equivocated to target path with a 'downsampled_' tag
+            attached in front.
+        downsample: int
+            How much the output needs to be downsampled by. Default value is 10.
+        downsample_offset: int
+            How much the downsampling needs to be shifted forward.
+        data_possesses_header: bool
+            If the data possessess a header that needs to be preserved across downsampling
+        '''
+        if new_file_path is None:
+            split_path = target_file_path.split('\\')
+            split_path[-1] = 'downsampled_' + split_path[-1]
+            new_file_path = '\\'.join(split_path)
+            print('new file path: ' + new_file_path)
+
+        reader = open(target_file_path, 'r')
+        d_writer = open(new_file_path, 'w')
+
+        header_flag = False
+        if data_possesses_header:
+            header_flag = True
+
+        read_idx = 0
+        for line in reader:
+            if header_flag:
+                d_writer.write(line)
+                header_flag = False
+                continue
+
+            if (read_idx - downsample_offset) % downsample == 0:
+                d_writer.write(line)
+            read_idx += 1
+
+        d_writer.close()
+        print('downsampling complete!')
