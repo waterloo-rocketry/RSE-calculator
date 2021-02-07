@@ -9,7 +9,7 @@ class EngineXML:
     It self-calculates all remaining fields during initialization.
     '''
 
-    def __init__(self, i_DAQ_data, i_engine_CG):
+    def __init__(self, i_DAQ_data, i_engine_CG, i_constants=None):
         '''
         Initializes all base values.
 
@@ -21,9 +21,17 @@ class EngineXML:
 
         i_engine_CG: EngineCG
             The tank pressure at each timestamp.
+
+        i_constants: constants.ConstantsManager
+            The constants that are to be used during the calculation. Defaults to None, in which
+            case the default path as specified in the constants file is used.
         '''
 
-        self.consts_m = ConstsM()
+        self.consts_m = None
+        if i_constants is None:
+            self.consts_m = ConstsM()
+        else:
+            self.consts_m = i_constants
 
         self.DAQ_data = i_DAQ_data
         self.engine_CG = i_engine_CG
@@ -45,21 +53,20 @@ class EngineXML:
         time = self.DAQ_data.time_s
         self.zeroed_time = [time[idx] - time[0] for idx in range(len(time))]
 
-        self.thrust_N = [consts.pounds_to_N(thrust) for thrust in self.DAQ_data.thrust_lb]
+        self.thrust_N = [consts.pounds_to_N(thrust)
+                         for thrust in self.DAQ_data.thrust_lb]
 
-        self.engine_mass_g = [consts.pounds_to_kg(mass)*1000 for \
-                mass in self.engine_CG.propellant_mass_lb]
+        self.engine_mass_g = [consts.pounds_to_kg(mass)*1000 for
+                              mass in self.engine_CG.propellant_mass_lb]
 
-        self.propellant_CG_mm = [self.recalculate_propellant_CG_mm(\
-                prop_CG_in_val, self.consts_m) for \
-                prop_CG_in_val in self.engine_CG.propellant_CG_in]
+        self.propellant_CG_mm = [self.recalculate_propellant_CG_mm(
+            prop_CG_in_val, self.consts_m) for
+            prop_CG_in_val in self.engine_CG.propellant_CG_in]
 
-#         self.XML_tags = [self.prepare_XML_tag_for_data_point(idx) for \
-#                 idx in range(len(self.DAQ_data.time_s))]
-        self.XML_tags = [self.prepare_XML_tag_for_data_point(z_t, t_N, eng_m, prop_CG) \
-                for z_t, t_N, eng_m, prop_CG in zip(self.zeroed_time, self.thrust_N, \
-                self.engine_mass_g, self.propellant_CG_mm)]
-
+        self.XML_tags = [self.prepare_XML_tag_for_data_point(z_t, t_N, eng_m, prop_CG)
+                         for z_t, t_N, eng_m, prop_CG in
+                         zip(self.zeroed_time, self.thrust_N,
+                             self.engine_mass_g, self.propellant_CG_mm)]
 
     @staticmethod
     def recalculate_propellant_CG_mm(prop_CG_in_val, consts_m):
@@ -81,7 +88,8 @@ class EngineXML:
             The final propellant CG in mm.
         '''
         result = consts_m.tank_dimensions_meters['total_length']*1000
-        result += consts.inches_to_metres(consts_m.engine_info['dist_to_tank_start'])*1000
+        result += consts.inches_to_metres(
+            consts_m.engine_info['dist_to_tank_start'])*1000
         result -= consts.inches_to_metres(prop_CG_in_val)*1000
         return result
 
@@ -111,10 +119,8 @@ class EngineXML:
 
         xml_tag = ''
         xml_tag += '<eng-data t=\"'
-        xml_tag += "{:.2f}".format(round(zeroed_time,2)) + '\" '
-        xml_tag += 'f=\"' + "{:.2f}".format(round(thrust_N, 2)) + '\" '
-        xml_tag += 'm=\"' + "{:.3f}".format(round(engine_mass_g, 3)) + '\" '
-        xml_tag += \
-            'cg=\"' + "{:.3f}".format(round(propellant_CG_mm, 3)) + '\"/>'
+        xml_tag += f"{round(zeroed_time,2):.2f}" + '\" '
+        xml_tag += 'f=\"' + f"{round(thrust_N,2):.2f}" + '\" '
+        xml_tag += 'm=\"' + f"{round(engine_mass_g,3):.3f}" + '\" '
+        xml_tag += 'cg=\"' + f"{round(propellant_CG_mm,3):.3f}" + '\"/>'
         return xml_tag
-

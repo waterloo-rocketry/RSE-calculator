@@ -1,6 +1,5 @@
 from NOS_mass_and_volume import NOSMassAndVolume
 from NOS_liquid_CG import NOSLiquidCG
-from constants import TankDimensionsMetres
 from constants import kg_to_pounds
 from constants import metres_to_inches
 from constants import ConstantsManager as ConstsM
@@ -40,7 +39,7 @@ class NOSVapourCG:
         for curr_vol in nos_vapour_volumes:
             if curr_vol <= tank_volumes[5]:
                 cases.append(0)
-            elif  tank_volumes[5] < curr_vol <= sum(tank_volumes[4:]):
+            elif tank_volumes[5] < curr_vol <= sum(tank_volumes[4:]):
                 cases.append(1)
             elif sum(tank_volumes[4:]) < curr_vol <= sum(tank_volumes[3:]):
                 cases.append(2)
@@ -53,38 +52,9 @@ class NOSVapourCG:
 
         return cases
 
-    def calculate_vapour_cg(self):
-        '''
-        Calculates vapour centre of gravity as average of all CG multiplied by their masses
-        '''
-        for vol,case,height,density in zip(self.NOS_mass_and_volume_data.vapour_volume_m3,\
-            self.case,self.vapour_height_m,\
-            self.NOS_mass_and_volume_data.DAQ_pressure_to_density_data.gas_density_kg_m3):
-
-            numerator = 0
-
-            #Case 0 is special (no filled cylinders)
-            if case == 0:
-                numerator = TankDimensionsMetres.volume[5] * density * height / 2 *\
-                   vol * density
-
-            #General case
-            else:
-                i = 0
-                #Adding filled cylinders
-                for i in range(case):
-                    numerator += TankDimensionsMetres.volume[5 - i] * density *\
-                       TankDimensionsMetres.length[5 - i]/2
-
-                #Accounting for partially filled cylinder
-                numerator += (height + sum(TankDimensionsMetres.length[-case:]))/2*\
-                    (vol-sum(TankDimensionsMetres.volume[-case:]))*density
-
-            self.vapour_cg_m.append(TankDimensionsMetres.total_length - numerator/(vol*density))
-
     @staticmethod
-    def calculate_vapour_cg2(vapour_volume_m3, gas_density_kg_m3, cases, vapour_height,
-                              tank_dimensions_m, NOS_data_full = None):
+    def calculate_vapour_cg(vapour_volume_m3, gas_density_kg_m3, cases, vapour_height,
+                            tank_dimensions_m, NOS_data_full=None):
         '''
         Calculates vapour centre of gravity as average of all CG multiplied by their masses
 
@@ -116,58 +86,88 @@ class NOSVapourCG:
 
         vapour_cg_m = []
 
-        for vol,case,height,density in zip(vapour_volume_m3,\
-            cases, vapour_height,\
-            gas_density_kg_m3):
+        for vol, case, height, density in zip(vapour_volume_m3,
+                                              cases, vapour_height,
+                                              gas_density_kg_m3):
 
             numerator = 0
 
-            #Case 0 is special (no filled cylinders)
+            # Case 0 is special (no filled cylinders)
             if case == 0:
                 numerator = tank_dimensions_m['volume'][5] * density * height / 2 *\
-                   vol * density
+                    vol * density
 
-            #General case
+            # General case
             else:
-                #Adding filled cylinders
+                # Adding filled cylinders
                 for idx in range(case):
                     numerator += tank_dimensions_m['volume'][5 - idx] * density *\
-                       tank_dimensions_m['length'][5 - idx]/2
+                        tank_dimensions_m['length'][5 - idx]/2
 
-                #Accounting for partially filled cylinder
-                numerator += (height + sum(tank_dimensions_m['length'][-case:]))/2*\
+                # Accounting for partially filled cylinder
+                numerator += (height + sum(tank_dimensions_m['length'][-case:]))/2 *\
                     (vol-sum(tank_dimensions_m['volume'][-case:]))*density
 
-            vapour_cg_m.append(TankDimensionsMetres.total_length - numerator/(vol*density))
+            vapour_cg_m.append(
+                tank_dimensions_m['total_length'] - numerator/(vol*density))
 
         return vapour_cg_m
 
-    def __init__(self, i_NOS_mass_and_volume, i_NOS_liquid_CG):
-        self.consts_m = ConstsM()
+    def __init__(self, i_NOS_mass_and_volume, i_NOS_liquid_CG, i_constants=None):
+        '''
+        Initialize all base values in class
+
+        Parameters
+        ----------
+        i_NOS_mass_and_volume: NOSMassAndVolume object
+            Contains data pertaining to NOS mass,volume and density
+        i_NOS_liquid_CG: NOSLiquidCG object 
+            The details about the NOS centre of gravity
+        i_constants: constants.ConstantsManager
+            Object containing all the constants for the program. Default is None, in which case
+            a default object will be imported and created.
+        '''
+        self.consts_m = None
+        if i_constants is None:
+            self.consts_m = ConstsM()
+        else:
+            self.consts_m = i_constants
 
         self.NOS_mass_and_volume_data = i_NOS_mass_and_volume
         self.NOS_liquid_CG_data = i_NOS_liquid_CG
 
         # Remaining spreadsheet values are direct copies of columns from other sheets
-        self.case = self.calculate_cases(self.NOS_mass_and_volume_data.vapour_volume_m3, \
-            self.consts_m.tank_dimensions_meters['volume'])
+        self.case = self.calculate_cases(self.NOS_mass_and_volume_data.vapour_volume_m3,
+                                         self.consts_m.tank_dimensions_meters['volume'])
 
-        self.vapour_height_m = [TankDimensionsMetres.total_length - x for x in \
-            self.NOS_liquid_CG_data.liquid_height_m]
+        self.vapour_height_m = [self.consts_m.tank_dimensions_meters['total_length'] - x
+                                for x in self.NOS_liquid_CG_data.liquid_height_m]
 
-        self.vapour_cg_m = self.calculate_vapour_cg2(
+        self.vapour_cg_m = self.calculate_vapour_cg(
             self.NOS_mass_and_volume_data.vapour_volume_m3,
             self.NOS_mass_and_volume_data.DAQ_pressure_to_density_data.gas_density_kg_m3,
             self.case, self.vapour_height_m, self.consts_m.tank_dimensions_meters)
 
-        self.vapour_mass_lb = [kg_to_pounds(x) for x in \
-            self.NOS_mass_and_volume_data.vapour_mass_kg]
+        self.vapour_mass_lb = [kg_to_pounds(x) for x in
+                               self.NOS_mass_and_volume_data.vapour_mass_kg]
 
         self.vapour_cg_in = [metres_to_inches(x) for x in self.vapour_cg_m]
 
 
-def create_output_file(target_path = 'NOS_vapour_CG_test.csv', daq_source_path =\
-         'test_csv.csv', downsample = 1):
+def create_output_file(target_path='NOS_vapour_CG_test.csv',
+                       daq_source_path='test_csv.csv', downsample=1):
+    '''
+    Utility function for creating an ouput file of the class contents
+
+    Parameters
+    ----------
+    target_path: str
+        the name of the ouput file.
+    daq_source_path: str
+        the path of the the daq file to be used for generating the file.
+    downsample: int
+        how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+    '''
     from csv_extractor import CSVExtractor
 
     ext = CSVExtractor()
@@ -175,20 +175,18 @@ def create_output_file(target_path = 'NOS_vapour_CG_test.csv', daq_source_path =
     test_nmv = NOSMassAndVolume(raw_dat)
     test_nlc = NOSLiquidCG(test_nmv)
     test_data = NOSVapourCG(test_nmv, test_nlc)
-    test_file = open(target_path,'w')
 
-    i = 0
-    while i < len(test_nmv.NOS_mass_kg):
-        if i % downsample == 0:
-            test_file.write(f'{raw_dat.time_s[i]},'+\
-                f'{test_data.NOS_mass_and_volume_data.vapour_volume_m3[i]},' +\
-                f'{test_data.case[i]}'+\
-                f',{test_data.vapour_height_m[i]},' +\
-                (str(test_data.NOS_mass_and_volume_data.
-                DAQ_pressure_to_density_data.gas_density_kg_m3[i]))+\
-                f',{test_data.NOS_mass_and_volume_data.vapour_mass_kg[i]}'+\
-                f',{test_data.vapour_cg_m[i]},{test_data.vapour_mass_lb[i]},'+\
-                f'{test_data.vapour_cg_in[i]}\n')
-        i += 1
-
-    test_file.close()
+    with open(target_path, 'w') as test_file:
+        i = 0
+        while i < len(test_nmv.NOS_mass_kg):
+            if i % downsample == 0:
+                test_file.write(f'{raw_dat.time_s[i]},' +
+                                f'{test_data.NOS_mass_and_volume_data.vapour_volume_m3[i]},' +
+                                f'{test_data.case[i]}' +
+                                f',{test_data.vapour_height_m[i]},' +
+                                (str(test_data.NOS_mass_and_volume_data.
+                                     DAQ_pressure_to_density_data.gas_density_kg_m3[i])) +
+                                f',{test_data.NOS_mass_and_volume_data.vapour_mass_kg[i]}' +
+                                f',{test_data.vapour_cg_m[i]},{test_data.vapour_mass_lb[i]},' +
+                                f'{test_data.vapour_cg_in[i]}\n')
+            i += 1

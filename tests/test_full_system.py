@@ -6,7 +6,8 @@ from calculator_main import execute_calculation
 def test_full_system():
     xml_from_string = ET.fromstring
 
-    execute_calculation('test_csv.csv', 'output_testcase_xml.txt', supress_printout = True)
+    execute_calculation(
+        'test_csv.csv', 'output_testcase_xml.txt', suppress_printout=True)
 
     correct_file = open('data\\correct_xml.txt')
     new_file = open('output_testcase_xml.txt')
@@ -19,4 +20,4 @@ def test_full_system():
 
         for key in correct_line_dict.keys():
             assert abs(float(correct_line_dict[key]) - float(other_line_dict[key])) <= \
-                    abs(float(correct_line_dict[key]))/100
+                abs(float(correct_line_dict[key]))/100

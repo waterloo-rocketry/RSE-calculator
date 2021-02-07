@@ -1,17 +1,17 @@
-import constants as consts
 from constants import ConstantsManager as ConstsM
 from NOS_mass_and_volume import NOSMassAndVolume
 from NOS_liquid_CG import NOSLiquidCG
 from NOS_vapour_CG import NOSVapourCG
 
-class EngineCG():
+
+class EngineCG:
     '''
     A class for holding all the data arrays for Engine CG calculations.
 
     It self-calculates all remaining fields during initialization.
     '''
 
-    def __init__(self, i_DAQ_data, i_NOS_vap_CG, i_NOS_liq_CG):
+    def __init__(self, i_DAQ_data, i_NOS_vap_CG, i_NOS_liq_CG, i_constants=None):
         '''
         Initializes all base values.
 
@@ -26,9 +26,18 @@ class EngineCG():
 
         i_NOS_liq_CG: NOSLiquidCG
             The recorded mass at each timestamp
+
+        i_constants: constants.ConstantsManager
+            The constants that are to be used during the calculation. Defaults to None, in which
+            case the default path as specified in the constants file is used.
         '''
-        self.consts_m = ConstsM()
-        self.debug_mode = False # needs to be set manually for debugging purposes
+        self.consts_m = None
+        if i_constants is None:
+            self.consts_m = ConstsM()
+        else:
+            self.consts_m = i_constants
+
+        self.debug_mode = False  # needs to be set manually for debugging purposes
 
         self.end_of_burn = 201
 
@@ -63,30 +72,29 @@ class EngineCG():
         Calculates the remaining values that were not given during initialization.
         '''
 
-        self.NOS_CG_in = self.calculate_NOS_CG_values(0,0,0,0,
-                self.NOS_liq_CG, self.NOS_vap_CG)
-        self.fuel_mass_lb = self.calculate_fuel_mass_values(self.DAQ_data.time_s,\
-            self.consts_m.engine_info, self.end_of_burn)
-#         self.fuel_mass_lb = [self.calculate_fuel_mass_value(time_stamp) for \
-#                 time_stamp in self.DAQ_data.time_s]
+        self.NOS_CG_in = self.calculate_NOS_CG_values(0, 0, 0, 0,
+                                                      self.NOS_liq_CG, self.NOS_vap_CG)
+        self.fuel_mass_lb = \
+            self.calculate_fuel_mass_values(self.DAQ_data.time_s,
+                                            self.consts_m.engine_info, self.end_of_burn)
 
-        self.propellant_mass_lb = [self.fuel_mass_lb[idx] + self.DAQ_data.adjusted_mass_lb[idx] \
-                for idx in range(len(self.DAQ_data.time_s))]
+        self.propellant_mass_lb = [self.fuel_mass_lb[idx] + self.DAQ_data.adjusted_mass_lb[idx]
+                                   for idx in range(len(self.DAQ_data.time_s))]
 
-        y_OS = consts.EngineInfo.dist_to_tank_start
+        y_OS = self.consts_m.engine_info['dist_to_tank_start']
         fuel_CG = self.fuel_CG_in
 
-        self.propellant_CG_in = [(self.DAQ_data.adjusted_mass_lb[idx]*(self.NOS_CG_in[idx] + y_OS)\
-                 + self.fuel_mass_lb[idx]*fuel_CG)/self.propellant_mass_lb[idx] \
-                 for idx in range(len(self.DAQ_data.time_s))]
+        self.propellant_CG_in = [(self.DAQ_data.adjusted_mass_lb[idx]*(self.NOS_CG_in[idx] + y_OS)
+                                  + self.fuel_mass_lb[idx]*fuel_CG)/self.propellant_mass_lb[idx]
+                                 for idx in range(len(self.DAQ_data.time_s))]
 
         if self.debug_mode:
             for val in self.propellant_CG_in:
                 print(val)
 
     @staticmethod
-    def calculate_NOS_CG_values(liquid_mass, vapour_mass, liquid_cg_in, vapour_cg_in
-            , NOS_liq_CG_fulldata = None, NOS_vap_CG_fulldata = None):
+    def calculate_NOS_CG_values(liquid_mass, vapour_mass, liquid_cg_in, vapour_cg_in,
+                                NOS_liq_CG_fulldata=None, NOS_vap_CG_fulldata=None):
         '''
         Calculates and returns the correct NOS_CG_in value for all data points.
 
@@ -114,7 +122,6 @@ class EngineCG():
             The NOS CG values for all data points.
         '''
 
-
         values = []
         if NOS_liq_CG_fulldata is not None:
             liquid_mass = NOS_liq_CG_fulldata.liquid_mass_lb
@@ -134,8 +141,8 @@ class EngineCG():
             vapour_cg_in = [vapour_cg_in]
 
         for val_idx in range(len(liquid_mass)):
-            result = (liquid_mass[val_idx]*liquid_cg_in[val_idx] +\
-                    vapour_mass[val_idx]*vapour_cg_in[val_idx])
+            result = (liquid_mass[val_idx]*liquid_cg_in[val_idx] +
+                      vapour_mass[val_idx]*vapour_cg_in[val_idx])
             result /= (liquid_mass[val_idx] + vapour_mass[val_idx])
             values.append(result)
 
@@ -167,41 +174,49 @@ class EngineCG():
         m_FF = engine_info['fuel_grain_final_mass']
 
         for time_stamp in time:
-            result = float(m_FI - ((m_FI-m_FF)/(time[end_of_burn] - time[0]))*\
-                           (time_stamp - time[0]))
+            result = m_FI - ((m_FI-m_FF)/(time[end_of_burn] - time[0])) *\
+                (time_stamp - time[0])
             values.append(result)
 
         return values
 
-def create_output_file(target_path = 'Engine_CG_test.csv', daq_source_path =\
-         'test_csv.csv', downsample = 1):
-    from csv_extractor import CSVExtractor
 
+def create_output_file(target_path='Engine_CG_test.csv',
+                       daq_source_path='test_csv.csv', downsample=1):
+    '''
+    Utility function for creating an ouput file of the class contents
+
+    Parameters
+    ----------
+    target_path: str
+        the name of the ouput file.
+    daq_source_path: str
+        the path of the the daq file to be used for generating the file.
+    downsample: int
+        how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+    '''
+
+    from csv_extractor import CSVExtractor
     ext = CSVExtractor()
     raw_dat = ext.extract_data_to_raw_DAQ(daq_source_path)
     test_nmv = NOSMassAndVolume(raw_dat)
     test_nlc = NOSLiquidCG(test_nmv)
     test_nvc = NOSVapourCG(test_nmv, test_nlc)
     test_data = EngineCG(raw_dat, test_nvc, test_nlc)
-    test_file = open(target_path,'w')
 
-    i = 0
-    while i < len(test_nmv.NOS_mass_kg):
-        if i % downsample == 0:
-            test_file.write(f'{raw_dat.time_s[i]},'+\
-                f'{test_nlc.liquid_mass_lb[i]},' +\
-                f'{test_nlc.liquid_cg_in[i]},'+\
-                f'{test_nvc.vapour_mass_lb[i]},' +\
-                f'{test_nvc.vapour_cg_in[i]},' +\
-                f'{raw_dat.adjusted_mass_lb[i]},' +\
-                f'{test_data.NOS_CG_in[i]},' +\
-                f'{test_data.fuel_mass_lb[i]},' +\
-                f'{test_data.fuel_CG_in},' +\
-                f'{test_data.propellant_mass_lb[i]},' +\
-                f'{test_data.propellant_CG_in[i]},' + '\n')
-
-        i += 1
-
-    test_file.close()
-
-
+    with open(target_path, 'w') as test_file:
+        i = 0
+        while i < len(test_nmv.NOS_mass_kg):
+            if i % downsample == 0:
+                test_file.write(f'{raw_dat.time_s[i]},' +
+                                f'{test_nlc.liquid_mass_lb[i]},' +
+                                f'{test_nlc.liquid_cg_in[i]},' +
+                                f'{test_nvc.vapour_mass_lb[i]},' +
+                                f'{test_nvc.vapour_cg_in[i]},' +
+                                f'{raw_dat.adjusted_mass_lb[i]},' +
+                                f'{test_data.NOS_CG_in[i]},' +
+                                f'{test_data.fuel_mass_lb[i]},' +
+                                f'{test_data.fuel_CG_in},' +
+                                f'{test_data.propellant_mass_lb[i]},' +
+                                f'{test_data.propellant_CG_in[i]},' + '\n')
+            i += 1

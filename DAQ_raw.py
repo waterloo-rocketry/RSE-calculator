@@ -1,13 +1,13 @@
 
-class DAQRaw():
+class DAQRaw:
     '''
     A class for holding all the data arrays for the raw DAQ data.
 
     It self-calculates all remaining fields during initialization.
     '''
 
-    def __init__(self, i_time_s, i_tank_pressure_psig, \
-                 i_recorded_mass_lb, i_thrust_lb, i_test_cond = None):
+    def __init__(self, i_time_s, i_tank_pressure_psig,
+                 i_recorded_mass_lb, i_thrust_lb, i_test_cond=None):
         '''
         Initializes all base values.
 
@@ -66,8 +66,8 @@ class DAQRaw():
         `DAQRaw`:
             The sample class
         '''
-        return cls(\
-            list(range(data_length)), [100 - 10*x for x in range(data_length)],\
+        return cls(
+            list(range(data_length)), [100 - 10*x for x in range(data_length)],
             [1000 - 100*x for x in range(data_length)], [1.0 - 0.1*x for x in range(data_length)])
 
     @classmethod
@@ -88,13 +88,14 @@ class DAQRaw():
         `DAQRaw`:
             The sample class
         '''
-        return cls(\
-            list(range(data_length)), [100*(1 - x/data_length) for x in range(data_length)],\
-            [1000*(1 - x/data_length) for x in range(data_length)],\
+        return cls(
+            list(range(data_length)), [100*(1 - x/data_length)
+                                       for x in range(data_length)],
+            [1000*(1 - x/data_length) for x in range(data_length)],
             [1.0*(1 - x/data_length) for x in range(data_length)])
 
     @classmethod
-    def sample_instance_exp(cls, data_length, exp_factor = 2.71):
+    def sample_instance_exp(cls, data_length, exp_factor=2.71):
         '''
         Provides a primitive instance of the class based on the fixed given data length,
         with data decaying exponentially
@@ -113,18 +114,18 @@ class DAQRaw():
         `DAQRaw`:
             The sample class
         '''
-        return cls(\
-            list(range(data_length)), [100*(exp_factor**(-x)) for x in range(data_length)],\
-            [1000*(exp_factor**(-x)) for x in range(data_length)], [1.0*(exp_factor**(-x)) for x \
-            in range(data_length)])
-
+        return cls(
+            list(range(data_length)), [100*(exp_factor**(-x))
+                                       for x in range(data_length)],
+            [1000*(exp_factor**(-x)) for x in range(data_length)], [1.0*(exp_factor**(-x)) for x
+                                                                    in range(data_length)])
 
     def self_calculate_remaining_values(self):
         '''
         Calculates the remaining values that were not given during initialization.
         '''
-        self.tank_pressure_psia = [tp_psig_val + self.test_cond['local_atmos_pressure'] \
-                for tp_psig_val in self.tank_pressure_psig]
+        self.tank_pressure_psia = [tp_psig_val + self.test_cond['local_atmos_pressure']
+                                   for tp_psig_val in self.tank_pressure_psig]
 
-        self.adjusted_mass_lb = [rec_mass_lb_val - self.test_cond['water_used_for_heating'] \
-                for rec_mass_lb_val in self.recorded_mass_lb]
+        self.adjusted_mass_lb = [rec_mass_lb_val - self.test_cond['water_used_for_heating']
+                                 for rec_mass_lb_val in self.recorded_mass_lb]
