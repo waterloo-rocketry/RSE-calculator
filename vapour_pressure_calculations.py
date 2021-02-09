@@ -1,4 +1,5 @@
 from math import exp
+import numpy as np
 
 from constants import pascals_to_psi
 
@@ -26,11 +27,11 @@ class VapourPressureCalculations:
         '''
         # Using Equation 4.1 to solve for pressure
         result = consts_m.nitrous_oxide_properties['critical_pressure'] * \
-            exp((1/curr_t_reduced) *
-                (consts_m.equation_constants['eqn4_1'][1]*curr_one_minus_t_reduced +
-                 consts_m.equation_constants['eqn4_1'][2]*curr_one_minus_t_reduced**(1.5) +
-                 consts_m.equation_constants['eqn4_1'][3]*curr_one_minus_t_reduced**(2.5) +
-                 consts_m.equation_constants['eqn4_1'][4]*curr_one_minus_t_reduced**5))
+            np.exp((1/curr_t_reduced) *
+                   (consts_m.equation_constants['eqn4_1'][1]*curr_one_minus_t_reduced +
+                    consts_m.equation_constants['eqn4_1'][2]*curr_one_minus_t_reduced**(1.5) +
+                    consts_m.equation_constants['eqn4_1'][3]*curr_one_minus_t_reduced**(2.5) +
+                    consts_m.equation_constants['eqn4_1'][4]*curr_one_minus_t_reduced**5))
 
         return result  # Return pressure
 
@@ -52,21 +53,19 @@ class VapourPressureCalculations:
             self.consts_m = i_constants
 
         # Temperature values ranging from -90 to 36 degrees celsius
-        self.t_deg_c = range(-90, 37)
+        self.t_deg_c = np.array(range(-90, 37))
         # Converting t_deg_c into Kelvin
-        self.t_kelvin = [x + 273.15 for x in self.t_deg_c]
+        self.t_kelvin = self.t_deg_c + 273.15
         # Reduced temperature for each temperature step
-        self.t_reduced = [x / self.consts_m.nitrous_oxide_properties['critical_temp'] for
-                          x in self.t_kelvin]
+        self.t_reduced = self.t_kelvin / \
+            self.consts_m.nitrous_oxide_properties['critical_temp']
         # One minus the reduced temperature for each temperature step
-        self.one_minus_t_reduced = [1 - x for x in self.t_reduced]
+        self.one_minus_t_reduced = 1 - self.t_reduced
         # Pressure at each temperature step found using Equation 4.1
-        self.pressure_kpa = \
-            [self.eqn4_1(x, y, self.consts_m) for
-             x, y in zip(self.t_reduced, self.one_minus_t_reduced)]
+        self.pressure_kpa = self.eqn4_1(
+            self.t_reduced, self.one_minus_t_reduced, self.consts_m)
         # Pressure at each temperature step converted to psi
-        self.pressure_psi = [pascals_to_psi(
-            x * 1000) for x in self.pressure_kpa]
+        self.pressure_psi = pascals_to_psi(self.pressure_kpa * 1000)
 
 
 def create_ouput_file(path='vapour_pressure_test', downsample=1):

@@ -1,3 +1,5 @@
+import numpy as np
+
 from NOS_mass_and_volume import NOSMassAndVolume as NMV
 from NOS_liquid_CG import NOSLiquidCG as NLC
 from constants import ConstantsManager as CM
@@ -16,30 +18,26 @@ def test_calculate_cases():
 
     # Arbitrary values
 
-    assert NVC.calculate_cases([0], tank_volumes) == [0]
+    nos_volumes_test = np.array([0, 0.0001, 0.0002, 0.00645, 0.01])
+    correct_results = np.array([0, 1, 2, 3, 4])
 
-    assert NVC.calculate_cases([0.0001], tank_volumes) == [1]
+    results = NVC.calculate_cases(nos_volumes_test, tank_volumes)
 
-    assert NVC.calculate_cases([0.0002], tank_volumes) == [2]
-
-    assert NVC.calculate_cases([0.00645], tank_volumes) == [3]
-
-    assert NVC.calculate_cases([0.01], tank_volumes) == [4]
+    assert np.array_equal(results, correct_results)
 
     # Exact values (by definition)
 
-    assert NVC.calculate_cases([tank_volumes[5]], tank_volumes) == [0]
+    nos_volumes_test2 = np.array([tank_volumes[5], sum(tank_volumes[4:]),
+                                  sum(tank_volumes[3:]), sum(
+                                      tank_volumes[2:]),
+                                  sum(tank_volumes[1:]),
+                                  sum(tank_volumes[1:])*EXAMPLE_COEFFCIENT])
 
-    assert NVC.calculate_cases([sum(tank_volumes[4:])], tank_volumes) == [1]
+    correct_results2 = np.array([0, 1, 2, 3, 3, 4])
 
-    assert NVC.calculate_cases([sum(tank_volumes[3:])], tank_volumes) == [2]
+    results2 = NVC.calculate_cases(nos_volumes_test2, tank_volumes)
 
-    assert NVC.calculate_cases([sum(tank_volumes[2:])], tank_volumes) == [3]
-
-    assert NVC.calculate_cases([sum(tank_volumes[1:])], tank_volumes) == [3]
-
-    assert NVC.calculate_cases([sum(tank_volumes[1:])*EXAMPLE_COEFFCIENT],
-                               tank_volumes) == [4]
+    assert np.array_equal(results2, correct_results2)
 
 
 def test_calculate_vapour_cg():

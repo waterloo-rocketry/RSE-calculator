@@ -1,3 +1,5 @@
+import numpy as np
+
 from constants import ConstantsManager as ConstsM
 from NOS_mass_and_volume import NOSMassAndVolume
 from NOS_liquid_CG import NOSLiquidCG
@@ -39,8 +41,6 @@ class EngineCG:
 
         self.debug_mode = False  # needs to be set manually for debugging purposes
 
-        self.end_of_burn = 201
-
         self.DAQ_data = i_DAQ_data
         self.NOS_vap_CG = i_NOS_vap_CG
         self.NOS_liq_CG = i_NOS_liq_CG
@@ -72,22 +72,27 @@ class EngineCG:
         Calculates the remaining values that were not given during initialization.
         '''
 
-        self.NOS_CG_in = self.calculate_NOS_CG_values(0, 0, 0, 0,
-                                                      self.NOS_liq_CG, self.NOS_vap_CG)
-        self.fuel_mass_lb = \
+        self.NOS_CG_in = np.array(self.calculate_NOS_CG_values(0, 0, 0, 0,
+                                                               self.NOS_liq_CG, self.NOS_vap_CG))
+        # Double dereference has to occur because of how numpy arrays indexing works
+        self.set_end_of_burn(
+            np.where(self.DAQ_data.time_s == self.consts_m.test_conditions['end_of_burn'])[0][0])
+        self.fuel_mass_lb = np.array(
             self.calculate_fuel_mass_values(self.DAQ_data.time_s,
-                                            self.consts_m.engine_info, self.end_of_burn)
+                                            self.consts_m.engine_info, self.end_of_burn))
 
-        self.propellant_mass_lb = [self.fuel_mass_lb[idx] + self.DAQ_data.adjusted_mass_lb[idx]
-                                   for idx in range(len(self.DAQ_data.time_s))]
+#         self.propellant_mass_lb = [self.fuel_mass_lb[idx] + self.DAQ_data.adjusted_mass_lb[idx]
+#                                    for idx in range(len(self.DAQ_data.time_s))]
+        self.propellant_mass_lb = self.fuel_mass_lb + self.DAQ_data.adjusted_mass_lb
 
         y_OS = self.consts_m.engine_info['dist_to_tank_start']
         fuel_CG = self.fuel_CG_in
 
-        self.propellant_CG_in = [(self.DAQ_data.adjusted_mass_lb[idx]*(self.NOS_CG_in[idx] + y_OS)
-                                  + self.fuel_mass_lb[idx]*fuel_CG)/self.propellant_mass_lb[idx]
-                                 for idx in range(len(self.DAQ_data.time_s))]
-
+#         self.propellant_CG_in = [(self.DAQ_data.adjusted_mass_lb[idx]*(self.NOS_CG_in[idx] + y_OS)
+#                                   + self.fuel_mass_lb[idx]*fuel_CG)/self.propellant_mass_lb[idx]
+#                                  for idx in range(len(self.DAQ_data.time_s))]
+        self.propellant_CG_in = (self.DAQ_data.adjusted_mass_lb*(self.NOS_CG_in + y_OS)
+                                 + self.fuel_mass_lb*fuel_CG)/self.propellant_mass_lb
         if self.debug_mode:
             for val in self.propellant_CG_in:
                 print(val)

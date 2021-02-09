@@ -1,4 +1,5 @@
 from math import pi
+import numpy as np
 
 from constants import kg_to_pounds
 from constants import metres_to_inches
@@ -139,7 +140,8 @@ class NOSLiquidCG:
                 numerator += (liq_height + sum(tank_dimensions_m['length'][1:case + 1]))/2 *\
                     (vol-sum(tank_dimensions_m['volume'][1:case + 1]))*density
 
-            liquid_cg_m.append(numerator/(vol*density))
+#             liquid_cg_m.append(numerator/(vol*density))
+            liquid_cg_m = np.append(liquid_cg_m, numerator/(vol*density))
 
         return liquid_cg_m
 
@@ -169,9 +171,9 @@ class NOSLiquidCG:
         self.case = self.calculate_cases(self.NOS_mass_and_volume_data.liquid_volume_m3,
                                          self.consts_m.tank_dimensions_meters['volume'])
 
-        self.liquid_height_m = \
+        self.liquid_height_m = np.array(
             self.calculate_liquid_heights(self.NOS_mass_and_volume_data.liquid_volume_m3,
-                                          self.case, self.consts_m.tank_dimensions_meters)
+                                          self.case, self.consts_m.tank_dimensions_meters))
 
         self.liquid_cg_m = \
             self.calculate_liquid_cg(self.case, self.liquid_height_m,
@@ -180,9 +182,9 @@ class NOSLiquidCG:
                                      self.NOS_mass_and_volume_data.
                                      DAQ_pressure_to_density_data.density_liquid_kg_m3)
 
-        self.liquid_mass_lb = [kg_to_pounds(x) for x in
-                               self.NOS_mass_and_volume_data.liquid_mass_kg]
-        self.liquid_cg_in = [metres_to_inches(x) for x in self.liquid_cg_m]
+        self.liquid_mass_lb = kg_to_pounds(
+            self.NOS_mass_and_volume_data.liquid_mass_kg)
+        self.liquid_cg_in = metres_to_inches(self.liquid_cg_m)
 
 
 def create_output_file(target_path='NOS_liquid_CG_test.csv',

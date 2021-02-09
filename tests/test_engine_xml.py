@@ -1,3 +1,5 @@
+import numpy as np
+
 from constants import ConstantsManager as CM
 from engine_XML import EngineXML as EXML
 
@@ -7,13 +9,11 @@ ERROR_TOLERANCE = 0.001
 def test_recalculate_propellant_CG_mm():
     cm = CM('data\\test_constants.yaml')
 
-    assert abs(EXML.recalculate_propellant_CG_mm(
-        0, cm) - 1651.0) < 1651.0*ERROR_TOLERANCE
-    assert abs(EXML.recalculate_propellant_CG_mm(
-        0.5, cm) - 1638.3) < 1638.3*ERROR_TOLERANCE
-    assert abs(EXML.recalculate_propellant_CG_mm(
-        30, cm) - 889.0) < 889.0*ERROR_TOLERANCE
+    prop_CG_in_vals = np.array([0, 0.5, 30])
+    correct_results = np.array([1651.0, 1638.3, 889.0])
 
+    results = EXML.recalculate_propellant_CG_mm(prop_CG_in_vals, cm)
+    assert np.allclose(results, correct_results, rtol=0.001)
 
 def test_prepare_XML_tag_for_data_point():
 

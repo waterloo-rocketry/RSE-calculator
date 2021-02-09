@@ -51,17 +51,15 @@ class EngineXML:
         Calculates the remaining values that were not given during initialization.
         '''
         time = self.DAQ_data.time_s
-        self.zeroed_time = [time[idx] - time[0] for idx in range(len(time))]
+        self.zeroed_time = time - time[0]
 
-        self.thrust_N = [consts.pounds_to_N(thrust)
-                         for thrust in self.DAQ_data.thrust_lb]
+        self.thrust_N = consts.pounds_to_N(self.DAQ_data.thrust_lb)
 
-        self.engine_mass_g = [consts.pounds_to_kg(mass)*1000 for
-                              mass in self.engine_CG.propellant_mass_lb]
+        self.engine_mass_g = consts.pounds_to_kg(
+            self.engine_CG.propellant_mass_lb*1000)
 
-        self.propellant_CG_mm = [self.recalculate_propellant_CG_mm(
-            prop_CG_in_val, self.consts_m) for
-            prop_CG_in_val in self.engine_CG.propellant_CG_in]
+        self.propellant_CG_mm = self.recalculate_propellant_CG_mm(
+            self.engine_CG.propellant_CG_in, self.consts_m)
 
         self.XML_tags = [self.prepare_XML_tag_for_data_point(z_t, t_N, eng_m, prop_CG)
                          for z_t, t_N, eng_m, prop_CG in

@@ -63,29 +63,27 @@ class NOSMassAndVolume:
         self.DAQ_pressure_to_density_data = \
             DAQPressureToDensity(DAQ_data, i_constants=self.consts_m)
         # Mass of NOS converted to kg
-        self.NOS_mass_kg = [pounds_to_kg(x) for x in DAQ_data.adjusted_mass_lb]
+        self.NOS_mass_kg = pounds_to_kg(DAQ_data.adjusted_mass_lb)
 
         # Define and calculate volume of liquid in m^3
         self.liquid_volume_m3 = []
 
         total_volume = self.consts_m.tank_dimensions_meters['total_volume']
-        self.liquid_volume_m3 = [self.calculate_liquid_volume(m, g, l, total_volume)
-                                 for m, g, l in
-                                 zip(self.NOS_mass_kg,
-                                     self.DAQ_pressure_to_density_data.gas_density_kg_m3,
-                                     self.DAQ_pressure_to_density_data.density_liquid_kg_m3)]
+        self.liquid_volume_m3 = \
+            self.calculate_liquid_volume(self.NOS_mass_kg,
+                                         self.DAQ_pressure_to_density_data.gas_density_kg_m3,
+                                         self.DAQ_pressure_to_density_data.density_liquid_kg_m3, total_volume)
 
         # Calculate volume of vapour in m^3
-        self.vapour_volume_m3 = [self.consts_m.tank_dimensions_meters['total_volume'] - x
-                                 for x in self.liquid_volume_m3]
+        self.vapour_volume_m3 =\
+            self.consts_m.tank_dimensions_meters['total_volume'] - \
+            self.liquid_volume_m3
 
         # Calculating mass of liquid and vapour at each time step in kg/m^3
         self.liquid_mass_kg = \
-            [x*y for x, y in
-             zip(self.DAQ_pressure_to_density_data.density_liquid_kg_m3, self.liquid_volume_m3)]
+            self.DAQ_pressure_to_density_data.density_liquid_kg_m3 * self.liquid_volume_m3
         self.vapour_mass_kg = \
-            [x*y for x, y in
-             zip(self.DAQ_pressure_to_density_data.gas_density_kg_m3, self.vapour_volume_m3)]
+            self.DAQ_pressure_to_density_data.gas_density_kg_m3 * self.vapour_volume_m3
 
 
 def create_output_file(target_path='NOS_mass_and_volume_test.csv',

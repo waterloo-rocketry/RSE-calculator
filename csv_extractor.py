@@ -1,4 +1,5 @@
 import csv
+import os
 from DAQ_raw import DAQRaw
 
 
@@ -105,9 +106,9 @@ class CSVExtractor:
             If the data possessess a header that needs to be preserved across downsampling
         '''
         if new_file_path is None:
-            split_path = target_file_path.split('\\')
-            split_path[-1] = 'downsampled_' + split_path[-1]
-            new_file_path = '\\'.join(split_path)
+            split_path = list(os.path.split(target_file_path))
+            split_path[1] = 'downsampled_' + split_path[1]
+            new_file_path = os.path.join(split_path[0],split_path[1])
             print('new file path: ' + new_file_path)
 
         reader = open(target_file_path, 'r')

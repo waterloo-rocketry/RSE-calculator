@@ -1,3 +1,5 @@
+import numpy as np
+
 from NOS_mass_and_volume import NOSMassAndVolume
 from NOS_liquid_CG import NOSLiquidCG
 from constants import kg_to_pounds
@@ -84,7 +86,7 @@ class NOSVapourCG:
             vapour_volume_m3 = NOS_data_full.vapour_volume_m3
             gas_density_kg_m3 = NOS_data_full.DAQ_pressure_to_density_data.gas_density_kg_m3
 
-        vapour_cg_m = []
+        vapour_cg_m = np.array([])
 
         for vol, case, height, density in zip(vapour_volume_m3,
                                               cases, vapour_height,
@@ -108,8 +110,8 @@ class NOSVapourCG:
                 numerator += (height + sum(tank_dimensions_m['length'][-case:]))/2 *\
                     (vol-sum(tank_dimensions_m['volume'][-case:]))*density
 
-            vapour_cg_m.append(
-                tank_dimensions_m['total_length'] - numerator/(vol*density))
+            vapour_cg_m = np.append(vapour_cg_m,
+                                    tank_dimensions_m['total_length'] - numerator/(vol*density))
 
         return vapour_cg_m
 
@@ -140,18 +142,17 @@ class NOSVapourCG:
         self.case = self.calculate_cases(self.NOS_mass_and_volume_data.vapour_volume_m3,
                                          self.consts_m.tank_dimensions_meters['volume'])
 
-        self.vapour_height_m = [self.consts_m.tank_dimensions_meters['total_length'] - x
-                                for x in self.NOS_liquid_CG_data.liquid_height_m]
+        self.vapour_height_m = (self.consts_m.tank_dimensions_meters['total_length']
+                                - self.NOS_liquid_CG_data.liquid_height_m)
 
         self.vapour_cg_m = self.calculate_vapour_cg(
             self.NOS_mass_and_volume_data.vapour_volume_m3,
             self.NOS_mass_and_volume_data.DAQ_pressure_to_density_data.gas_density_kg_m3,
             self.case, self.vapour_height_m, self.consts_m.tank_dimensions_meters)
 
-        self.vapour_mass_lb = [kg_to_pounds(x) for x in
-                               self.NOS_mass_and_volume_data.vapour_mass_kg]
-
-        self.vapour_cg_in = [metres_to_inches(x) for x in self.vapour_cg_m]
+        self.vapour_mass_lb = kg_to_pounds(
+            self.NOS_mass_and_volume_data.vapour_mass_kg)
+        self.vapour_cg_in = metres_to_inches(self.vapour_cg_m)
 
 
 def create_output_file(target_path='NOS_vapour_CG_test.csv',

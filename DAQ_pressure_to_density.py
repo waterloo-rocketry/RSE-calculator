@@ -1,5 +1,6 @@
 from math import e
 from vapour_pressure_calculations import VapourPressureCalculations
+import numpy as np
 
 
 class DAQPressureToDensity:
@@ -19,92 +20,6 @@ class DAQPressureToDensity:
         '''
 
         self.debug = mode
-
-    def find_closest_match_idx(self, value, matching_array):
-        '''
-        Finds and returns the index of closest match (less than or equal to) to value in
-        matching_array. Uses the fact that the values in matching_array are monotonically
-        increasing.
-
-        Parameters
-        ----------
-        value: float
-            Value to be compared against matching_array.
-        matching_array: list of floats
-            List of floats in increasing order where the match is to be searched for.
-
-        Returns
-        -------
-        int:
-            The index of the closest match
-        '''
-        return_index = 0  # index of closest match
-        # curr_value in matching_array being visited
-        curr_value = matching_array[return_index]
-
-        if self.debug:
-            print(str(value) + ',' + str(curr_value) + '\n')
-
-        # Find closest value by checking until either end of list reached or curr_value >= value
-        while return_index < len(matching_array) and value >= curr_value:
-            return_index += 1
-            # re-check to account for last index
-            if return_index < len(matching_array):
-                curr_value = matching_array[return_index]
-
-        # Subtract by one to account for overshoot
-        return return_index - 1
-
-    @staticmethod
-    def calculate_reduced_temp(DAQ_data, closest_p, next_p, temp_at_closest_p, critical_temp):
-        '''
-        Uses linear interpolation to calculates reduced temperature for each tank pressure.
-
-        Intended to complute results that are later stored in self.t_reduced.
-
-        Parameters
-        ----------
-        DAQ_data: `DAQRaw`
-            The local daq data
-        closest_p: python list of float
-            The list containing the closest pressures for each data point
-        next_p: python list of float
-            The list containing the next closest pressures for each data point
-        closest_p: python list of float
-            The list containing the associated temperatures at each closest pressure
-        critical_temp: float
-            The value of the critical temperature for nitrous oxide, a constant
-
-        Returns
-        -------
-        python list of float:
-            The result of the calculation - reduced temperatures for each data point
-        '''
-
-        t_reduced = []
-        # Iterate through every tank pressure
-        # All columns are same length so doesnt matter which length is checked here
-        for i in range(len(closest_p)):
-            try:
-                frac = (
-                    DAQ_data.tank_pressure_psia[i] - closest_p[i])/(next_p[i] - closest_p[i])
-                result = (frac + temp_at_closest_p[i])/critical_temp
-            except ZeroDivisionError:
-                # seems to be the maximum value for this variable
-                result = 1
-                print('ZeroDivisionError caught in DAQ_pressure_to_density, function ' +
-                      'calculate_reduced_temp. Either NitrousOxideProperties.critical_temp ' +
-                      'has been set to 0, or the previous and next temperatures at a reading ' +
-                      'are identical. A default value of 1 was returned for that data value.')
-            except IndexError:
-                print('IndexError caught in DAQ_pressure_to_density, function ' +
-                      'calculate_reduced_temp. List size mismatch detected, ' +
-                      'results truncated to shortest length array was returned.')
-                return t_reduced
-
-            t_reduced.append(result)
-
-        return t_reduced
 
     @staticmethod
     def eqn4_2(curr_one_minus_t_reduced, eqn4_2_constants, critical_density):
@@ -183,42 +98,25 @@ class DAQPressureToDensity:
         self.debug = False
         self.vapour_pressure_data = VapourPressureCalculations()
 
-        # Index of vapour pressure value closest to DAQ pressure
-        self.index_with_closest_p = \
-            [self.find_closest_match_idx(x, self.vapour_pressure_data.pressure_psi)
-             for x in DAQ_data.tank_pressure_psia]
-        # Closest vapour pressure value (<=) to DAQ pressure
-        self.closest_p = \
-            [self.vapour_pressure_data.pressure_psi[x]
-                for x in self.index_with_closest_p]
-        # Value right after closest vapour pressure value
-        self.next_p = \
-            [self.vapour_pressure_data.pressure_psi[x + 1]
-                for x in self.index_with_closest_p]
-
-        # Define the temperature values at each of the closest pressures
-        temps_of_closest_p = [self.vapour_pressure_data.t_kelvin[self.index_with_closest_p[i]]
-                              for i in range(len(self.index_with_closest_p))]
-
-        # Define and calculate reduced temperatures
-        self.t_reduced = self.calculate_reduced_temp(
-            DAQ_data, self.closest_p, self.next_p,
-            temps_of_closest_p, self.consts_m.nitrous_oxide_properties['critical_temp'])
+        # Define and calculate reduced temperatures using numpy interpolate
+        self.t_reduced = (np.array(np.interp(DAQ_data.tank_pressure_psia,
+                                             self.vapour_pressure_data.pressure_psi,
+                                             self.vapour_pressure_data.t_kelvin)) /
+                          self.consts_m.nitrous_oxide_properties['critical_temp'])
 
         # Intermediate math
-        self.one_minus_t_reduced = [1 - x for x in self.t_reduced]
-        self.reciprocal_t_reduced_minus_one = [
-            (1 / x) - 1 for x in self.t_reduced]
+        self.one_minus_t_reduced = 1 - self.t_reduced
+        self.reciprocal_t_reduced_minus_one = (1 / self.t_reduced) - 1
 
         # Lists of liquid and gaseous densities
-        self.density_liquid_kg_m3 = \
-            [self.eqn4_2(x, self.consts_m.equation_constants['eqn4_2'],
-                         self.consts_m.nitrous_oxide_properties['critical_density'])
-             for x in self.one_minus_t_reduced]
+        self.density_liquid_kg_m3 = self.eqn4_2(self.one_minus_t_reduced,
+                                                self.consts_m.equation_constants['eqn4_2'],
+                                                self.consts_m.nitrous_oxide_properties['critical_density'])
+
         self.gas_density_kg_m3 = \
-            [self.eqn4_3(x, self.consts_m.equation_constants['eqn4_3'],
-                         self.consts_m.nitrous_oxide_properties['critical_density'])
-             for x in self.reciprocal_t_reduced_minus_one]
+            self.eqn4_3(self.reciprocal_t_reduced_minus_one,
+                        self.consts_m.equation_constants['eqn4_3'],
+                        self.consts_m.nitrous_oxide_properties['critical_density'])
 
 
 def create_ouput_file(path='DAQ_pressure_to_density_test', downsample=1):
@@ -241,11 +139,10 @@ def create_ouput_file(path='DAQ_pressure_to_density_test', downsample=1):
 
     with open(path + '.csv', 'w') as test_file:
         i = 0
-        while i < len(test_data.next_p):
+        while i < len(test_data.t_reduced):
             if i % downsample == 0:
                 test_file.write(f'{raw_dat.time_s[i]},{raw_dat.tank_pressure_psia[i]},' +
-                                f'{test_data.index_with_closest_p[i]},{test_data.closest_p[i]},' +
-                                f'{test_data.next_p[i]},{test_data.t_reduced[i]},' +
+                                f'{test_data.t_reduced[i]},' +
                                 f'{test_data.one_minus_t_reduced[i]},' +
                                 f'{test_data.reciprocal_t_reduced_minus_one[i]},' +
                                 f'{test_data.density_liquid_kg_m3[i]},' +

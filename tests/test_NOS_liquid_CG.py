@@ -1,3 +1,5 @@
+import numpy as np
+
 from NOS_mass_and_volume import NOSMassAndVolume as NMV
 from NOS_liquid_CG import NOSLiquidCG as NLC
 from constants import ConstantsManager as CM
@@ -15,30 +17,25 @@ def test_calculate_cases():
 
     # Arbitrary values
 
-    assert NLC.calculate_cases([0], tank_volumes) == [0]
+    nos_volumes_test = np.array([0, 0.0001, 0.0002, 0.00645, 0.01])
+    correct_results = np.array([0, 1, 2, 3, 4])
 
-    assert NLC.calculate_cases([0.0001], tank_volumes) == [1]
+    results = NLC.calculate_cases(nos_volumes_test, tank_volumes)
 
-    assert NLC.calculate_cases([0.0002], tank_volumes) == [2]
-
-    assert NLC.calculate_cases([0.00645], tank_volumes) == [3]
-
-    assert NLC.calculate_cases([0.01], tank_volumes) == [4]
+    assert np.array_equal(results, correct_results)
 
     # Exact values
+    nos_volumes_test2 = np.array([tank_volumes[1], sum(tank_volumes[1:3]),
+                                  sum(tank_volumes[1:4]), sum(
+                                      tank_volumes[1:5]),
+                                  sum(tank_volumes[1:6]),
+                                  sum(tank_volumes[1:6])*EXAMPLE_COEFFCIENT])
 
-    assert NLC.calculate_cases([tank_volumes[1]], tank_volumes) == [0]
+    correct_results2 = np.array([0, 1, 2, 3, 3, 4])
 
-    assert NLC.calculate_cases([sum(tank_volumes[1:3])], tank_volumes) == [1]
+    results2 = NLC.calculate_cases(nos_volumes_test2, tank_volumes)
 
-    assert NLC.calculate_cases([sum(tank_volumes[1:4])], tank_volumes) == [2]
-
-    assert NLC.calculate_cases([sum(tank_volumes[1:5])], tank_volumes) == [3]
-
-    assert NLC.calculate_cases([sum(tank_volumes[1:6])], tank_volumes) == [3]
-
-    assert NLC.calculate_cases([sum(tank_volumes[1:6])*EXAMPLE_COEFFCIENT],
-                               tank_volumes) == [4]
+    assert np.array_equal(results2, correct_results2)
 
 
 def test_calculate_liquid_heights():
@@ -103,7 +100,8 @@ def test_calculate_liquid_cg():
                0.013144) < 0.013144*ERROR_TOLERANCE
 
     assert abs(NLC.calculate_liquid_cg([0], [0.0001657], tank_dims_m, [5.249*10**(-7)],
-                                       [1085.32])[0] - 3.6165*10**(-6)) < 3.6165*10**(-6)*ERROR_TOLERANCE
+                                       [1085.32])[0] - 3.6165*10**(-6)) \
+                                       < 3.6165*10**(-6)*ERROR_TOLERANCE
 
 
 def test_with_sample_file():

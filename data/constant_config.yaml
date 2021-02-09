@@ -34,3 +34,4 @@ EngineInfo:
 TestConditions:
     local_atmos_pressure: 14.383    #pounds per square inch (psi)
     water_used_for_heating: 15      #pounds (lb)
+    end_of_burn: 395.1              #seconds

@@ -1,3 +1,5 @@
+import numpy as np
+
 from NOS_mass_and_volume import NOSMassAndVolume as NMV
 from NOS_vapour_CG import NOSVapourCG as NVC
 from NOS_liquid_CG import NOSLiquidCG as NLC
@@ -41,11 +43,8 @@ def test_calculate_fuel_mass_values():
         range(5), cm.engine_info, end_of_burn=3)
     correct_set2 = [6.929129, 5.516086, 4.103043, 2.69000, 1.276957]
 
-    for c, t in zip(correct_set1, test_set1):
-        assert abs(t - c) < c*ERROR_TOLERANCE
-
-    for c2, t2 in zip(correct_set2, test_set2):
-        assert abs(t2 - c2) < c2*ERROR_TOLERANCE
+    assert np.allclose(correct_set1, test_set1, rtol=ERROR_TOLERANCE)
+    assert np.allclose(correct_set2, test_set2, rtol=ERROR_TOLERANCE)
 
 
 def test_with_sample_file():
