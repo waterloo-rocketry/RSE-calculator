@@ -7,13 +7,14 @@ ERROR_TOLERANCE = 0.001
 
 
 def test_recalculate_propellant_CG_mm():
-    cm = CM('data\\test_constants.yaml')
+    cm = CM('tests/test_constants.yaml')
 
     prop_CG_in_vals = np.array([0, 0.5, 30])
     correct_results = np.array([1651.0, 1638.3, 889.0])
 
     results = EXML.recalculate_propellant_CG_mm(prop_CG_in_vals, cm)
-    assert np.allclose(results, correct_results, rtol=0.001)
+    assert np.allclose(results, correct_results, rtol=ERROR_TOLERANCE)
+
 
 def test_prepare_XML_tag_for_data_point():
 

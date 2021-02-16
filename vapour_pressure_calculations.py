@@ -1,4 +1,3 @@
-from math import exp
 import numpy as np
 
 from constants import pascals_to_psi
@@ -6,13 +5,13 @@ from constants import pascals_to_psi
 
 class VapourPressureCalculations:
     '''
-    Establish the vapour pressure of NOS between -90 and 36 degrees Celsius
+    Establish the vapour pressure of NOS between -90 and 36 degrees Celsius.
     '''
 
     @staticmethod
     def eqn4_1(curr_t_reduced, curr_one_minus_t_reduced, consts_m):
         '''
-        Static method mplementation of Equation 4.1 to solve for pressure in kPa
+        Static method implementation of Equation 4.1 to solve for pressure in kPa.
 
         Parameters
         ----------
@@ -28,22 +27,22 @@ class VapourPressureCalculations:
         # Using Equation 4.1 to solve for pressure
         result = consts_m.nitrous_oxide_properties['critical_pressure'] * \
             np.exp((1/curr_t_reduced) *
-                   (consts_m.equation_constants['eqn4_1'][1]*curr_one_minus_t_reduced +
-                    consts_m.equation_constants['eqn4_1'][2]*curr_one_minus_t_reduced**(1.5) +
-                    consts_m.equation_constants['eqn4_1'][3]*curr_one_minus_t_reduced**(2.5) +
-                    consts_m.equation_constants['eqn4_1'][4]*curr_one_minus_t_reduced**5))
+                   (consts_m.equation_constants['eqn4_1'][0]*curr_one_minus_t_reduced +
+                    consts_m.equation_constants['eqn4_1'][1]*curr_one_minus_t_reduced**(1.5) +
+                    consts_m.equation_constants['eqn4_1'][2]*curr_one_minus_t_reduced**(2.5) +
+                    consts_m.equation_constants['eqn4_1'][3]*curr_one_minus_t_reduced**5))
 
         return result  # Return pressure
 
     def __init__(self, i_constants=None):
         '''
-        Initialize all base values
+        Initialize all base values.
 
         Parameters
         ----------
         i_constants: constants.ConstantsManager
             Object containing all the constants for the program. Default is None, in which case
-            a default object will be imported and created
+            a default object will be imported and created.
         '''
 
         if i_constants is None:
@@ -52,8 +51,7 @@ class VapourPressureCalculations:
         else:
             self.consts_m = i_constants
 
-        # Temperature values ranging from -90 to 36 degrees celsius
-        self.t_deg_c = np.array(range(-90, 37))
+        self.t_deg_c = np.arange(-90, 36, 0.1)
         # Converting t_deg_c into Kelvin
         self.t_kelvin = self.t_deg_c + 273.15
         # Reduced temperature for each temperature step
@@ -68,9 +66,9 @@ class VapourPressureCalculations:
         self.pressure_psi = pascals_to_psi(self.pressure_kpa * 1000)
 
 
-def create_ouput_file(path='vapour_pressure_test', downsample=1):
+def create_output_file(path='vapour_pressure_test.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents
+    Utility function for creating an ouput file of the class contents.
 
     Parameters
     ----------
@@ -83,7 +81,7 @@ def create_ouput_file(path='vapour_pressure_test', downsample=1):
 
     # Note: new field output lines should be added at the end of the write to ensure compliance
     # with existing test cases (`test_with_sample_file()` in test_vapour_pressure_calculations.py)
-    with open(path + '.csv', 'w') as test_file:
+    with open(path, 'w') as test_file:
         i = 0
         while i < len(test_data.t_deg_c):
             if i % downsample == 0:

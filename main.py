@@ -2,13 +2,22 @@ from calculator_main import execute_calculation
 
 if __name__ == '__main__':
 
-    HARD_CODED_PATH = None
-    HARD_CODED_PATH = 'test_csv.csv'
+    # In case someone wants to hard-code a value into this in the future
+    DAQ_PATH = None
+    TARGET_PATH = None
 
-    if HARD_CODED_PATH is None:
+    if DAQ_PATH is None:
         print('Please enter the filepath of the raw DAQ data to be used')
-        file_path = input()
+        daq_path = input()
     else:
-        file_path = HARD_CODED_PATH
+        daq_path = DAQ_PATH
 
-    execute_calculation(file_path, 'outputxml.txt')
+    if TARGET_PATH is None:
+        print('Please enter the filepath to which the xml will be saved')
+        target_path = input()
+        if target_path == '':
+            target_path = 'outputxml.txt'
+    else:
+        target_path = TARGET_PATH
+
+    execute_calculation(daq_path, target_path)

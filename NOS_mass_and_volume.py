@@ -43,7 +43,7 @@ class NOSMassAndVolume:
 
     def __init__(self, DAQ_data, i_constants=None):
         '''
-        Initialize all base values
+        Initialize all base values.
 
         Parameters
         ----------
@@ -72,7 +72,8 @@ class NOSMassAndVolume:
         self.liquid_volume_m3 = \
             self.calculate_liquid_volume(self.NOS_mass_kg,
                                          self.DAQ_pressure_to_density_data.gas_density_kg_m3,
-                                         self.DAQ_pressure_to_density_data.density_liquid_kg_m3, total_volume)
+                                         self.DAQ_pressure_to_density_data.density_liquid_kg_m3,
+                                         total_volume)
 
         # Calculate volume of vapour in m^3
         self.vapour_volume_m3 =\
@@ -89,16 +90,16 @@ class NOSMassAndVolume:
 def create_output_file(target_path='NOS_mass_and_volume_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents
+    Utility function for creating an ouput file of the class contents.
 
     Parameters
     ----------
     target_path: str
-        the name of the ouput file.
+        The name of the ouput file.
     daq_source_path: str
-        the path of the the daq file to be used for generating the file. 
+        The path of the the daq file to be used for generating the file.
     downsample: int
-        how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+        How much the output needs to be downsampled by. Default value is 1 (no downsampling).
     '''
 
     from csv_extractor import CSVExtractor

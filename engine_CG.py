@@ -15,20 +15,17 @@ class EngineCG:
 
     def __init__(self, i_DAQ_data, i_NOS_vap_CG, i_NOS_liq_CG, i_constants=None):
         '''
-        Initializes all base values.
+        Initialize all base values.
 
         Parameters
         ----------
 
         i_DAQ_data: DAQRaw
             The timestamps for the test data.
-
         i_NOS_vap_CG: NOSVapourCG
             The tank pressure at each timestamp.
-
         i_NOS_liq_CG: NOSLiquidCG
-            The recorded mass at each timestamp
-
+            The recorded mass at each timestamp.
         i_constants: constants.ConstantsManager
             The constants that are to be used during the calculation. Defaults to None, in which
             case the default path as specified in the constants file is used.
@@ -52,11 +49,12 @@ class EngineCG:
         self.propellant_mass_lb = None
         self.propellant_CG_in = None
 
+        self.end_of_burn = 0
         self.self_calculate_remaining_values()
 
     def set_end_of_burn(self, end_idx):
         '''
-        Setter for the end_of_burn field
+        Setter for the end_of_burn field.
 
         Parameters
         ----------
@@ -69,11 +67,12 @@ class EngineCG:
 
     def self_calculate_remaining_values(self):
         '''
-        Calculates the remaining values that were not given during initialization.
+        Calculate the remaining values that were not given during initialization.
         '''
 
         self.NOS_CG_in = np.array(self.calculate_NOS_CG_values(0, 0, 0, 0,
                                                                self.NOS_liq_CG, self.NOS_vap_CG))
+
         # Double dereference has to occur because of how numpy arrays indexing works
         self.set_end_of_burn(
             np.where(self.DAQ_data.time_s == self.consts_m.test_conditions['end_of_burn'])[0][0])
@@ -81,16 +80,11 @@ class EngineCG:
             self.calculate_fuel_mass_values(self.DAQ_data.time_s,
                                             self.consts_m.engine_info, self.end_of_burn))
 
-#         self.propellant_mass_lb = [self.fuel_mass_lb[idx] + self.DAQ_data.adjusted_mass_lb[idx]
-#                                    for idx in range(len(self.DAQ_data.time_s))]
         self.propellant_mass_lb = self.fuel_mass_lb + self.DAQ_data.adjusted_mass_lb
 
         y_OS = self.consts_m.engine_info['dist_to_tank_start']
         fuel_CG = self.fuel_CG_in
 
-#         self.propellant_CG_in = [(self.DAQ_data.adjusted_mass_lb[idx]*(self.NOS_CG_in[idx] + y_OS)
-#                                   + self.fuel_mass_lb[idx]*fuel_CG)/self.propellant_mass_lb[idx]
-#                                  for idx in range(len(self.DAQ_data.time_s))]
         self.propellant_CG_in = (self.DAQ_data.adjusted_mass_lb*(self.NOS_CG_in + y_OS)
                                  + self.fuel_mass_lb*fuel_CG)/self.propellant_mass_lb
         if self.debug_mode:
@@ -101,24 +95,24 @@ class EngineCG:
     def calculate_NOS_CG_values(liquid_mass, vapour_mass, liquid_cg_in, vapour_cg_in,
                                 NOS_liq_CG_fulldata=None, NOS_vap_CG_fulldata=None):
         '''
-        Calculates and returns the correct NOS_CG_in value for all data points.
+        Calculate and return the correct NOS_CG_in value for all data points.
 
         Parameters
         ----------
         liquid_mass: float or list of float
             The mass of the liquid NOS.
         vapour_mass: float or list of float
-            The mass of vapour NOS
+            The mass of vapour NOS.
         liquid_cg_in: float or list of float
-            The centre of gravity for the liquid NOS
-        vapour_cg_in: float ro list of float
-            The cnetre of gravity for the vapour NOS
+            The centre of gravity for the liquid NOS.
+        vapour_cg_in: float or list of float
+            The cnetre of gravity for the vapour NOS.
         NOS_liq_CG_fulldata: NOS_liquid_CG.NOSLiquidCG
             The data object containing info regarding the liquid NOS center of gravity. Default to
-            None for input flexibility
+            None for input flexibility.
         NOS_vap_CG_fulldata: NOS_vapour_CG.NOSVapourCG
-            The data object containing infro regarding the vapour NOS center of gravity. Default to
-            None for input flexibility
+            The data object containing info regarding the vapour NOS center of gravity. Default to
+            None for input flexibility.
 
         Returns
         -------
@@ -127,7 +121,6 @@ class EngineCG:
             The NOS CG values for all data points.
         '''
 
-        values = []
         if NOS_liq_CG_fulldata is not None:
             liquid_mass = NOS_liq_CG_fulldata.liquid_mass_lb
             vapour_mass = NOS_vap_CG_fulldata.vapour_mass_lb
@@ -135,28 +128,25 @@ class EngineCG:
             liquid_cg_in = NOS_liq_CG_fulldata.liquid_cg_in
             vapour_cg_in = NOS_vap_CG_fulldata.vapour_cg_in
 
-        # packages into itereables if single floats are passed in
+        # Packages into itereables if single floats are passed in
         if not hasattr(liquid_mass, '__iter__'):
-            liquid_mass = [liquid_mass]
+            liquid_mass = np.array([liquid_mass])
         if not hasattr(vapour_mass, '__iter__'):
-            vapour_mass = [vapour_mass]
+            vapour_mass = np.array([vapour_mass])
         if not hasattr(liquid_cg_in, '__iter__'):
-            liquid_cg_in = [liquid_cg_in]
+            liquid_cg_in = np.array([liquid_cg_in])
         if not hasattr(vapour_cg_in, '__iter__'):
-            vapour_cg_in = [vapour_cg_in]
+            vapour_cg_in = np.array([vapour_cg_in])
 
-        for val_idx in range(len(liquid_mass)):
-            result = (liquid_mass[val_idx]*liquid_cg_in[val_idx] +
-                      vapour_mass[val_idx]*vapour_cg_in[val_idx])
-            result /= (liquid_mass[val_idx] + vapour_mass[val_idx])
-            values.append(result)
+        result = (liquid_mass * liquid_cg_in + vapour_mass * vapour_cg_in)
+        result = np.divide(result, (liquid_mass + vapour_mass))
 
-        return values
+        return result
 
     @staticmethod
     def calculate_fuel_mass_values(time, engine_info, end_of_burn):
         '''
-        Calculates and returns the correct fuel mass values for a all data points.
+        Calculate and return the correct fuel mass values for a all data points.
 
         Parameters
         ----------
@@ -174,14 +164,12 @@ class EngineCG:
         float:
             The fuel mass value for all time stamps.
         '''
-        values = []
+
         m_FI = engine_info['fuel_grain_init_mass']
         m_FF = engine_info['fuel_grain_final_mass']
 
-        for time_stamp in time:
-            result = m_FI - ((m_FI-m_FF)/(time[end_of_burn] - time[0])) *\
-                (time_stamp - time[0])
-            values.append(result)
+        values = m_FI - \
+            ((m_FI-m_FF)/(time[end_of_burn] - time[0])) * (time - time[0])
 
         return values
 
@@ -189,16 +177,16 @@ class EngineCG:
 def create_output_file(target_path='Engine_CG_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents
+    Utility function for creating an ouput file of the class contents.
 
     Parameters
     ----------
     target_path: str
-        the name of the ouput file.
+        The name of the ouput file.
     daq_source_path: str
-        the path of the the daq file to be used for generating the file.
+        The path of the the daq file to be used for generating the file.
     downsample: int
-        how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+        How much the output needs to be downsampled by. Default value is 1 (no downsampling).
     '''
 
     from csv_extractor import CSVExtractor

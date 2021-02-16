@@ -11,7 +11,7 @@ class DAQRaw:
     def __init__(self, i_time_s, i_tank_pressure_psig,
                  i_recorded_mass_lb, i_thrust_lb, i_test_cond=None):
         '''
-        Initializes all base values.
+        Initialize all base values.
 
         Parameters
         ----------
@@ -23,10 +23,10 @@ class DAQRaw:
             The tank pressure at each timestamp.
 
         i_recorded_mass: python list of float
-            The recorded mass at each timestamp
+            The recorded mass at each timestamp.
 
         i_thrust: python list of float
-            The recorded thrust at each timestamp
+            The recorded thrust at each timestamp.
 
         i_test_cond: dict of float
             Information about the test conditions. Default to None, in which case a
@@ -42,14 +42,12 @@ class DAQRaw:
 
         self.data_size = len(i_time_s)
 
-        self.time_s = n_array([float(time) for time in i_time_s])
-        self.tank_pressure_psig = n_array(
-            [float(val) for val in i_tank_pressure_psig])
+        self.time_s = n_array(i_time_s).astype(float)
+        self.tank_pressure_psig = n_array(i_tank_pressure_psig).astype(float)
         self.tank_pressure_psia = None
-        self.recorded_mass_lb = n_array(
-            [float(val) for val in i_recorded_mass_lb])
+        self.recorded_mass_lb = n_array(i_recorded_mass_lb).astype(float)
         self.adjusted_mass_lb = None
-        self.thrust_lb = n_array([float(val) for val in i_thrust_lb])
+        self.thrust_lb = n_array(i_thrust_lb).astype(float)
 
         self.tank_pressure_psia = self.tank_pressure_psig + \
             self.test_cond['local_atmos_pressure']
@@ -59,7 +57,7 @@ class DAQRaw:
     @classmethod
     def sample_instance(cls, data_length):
         '''
-        Provides a primitive instance of the class based on the fixed given data length
+        Provide a primitive instance of the class based on the fixed given data length.
 
         Parameters
         ----------
@@ -71,7 +69,7 @@ class DAQRaw:
         -------
 
         `DAQRaw`:
-            The sample class
+            The sample class.
         '''
         return cls(
             list(range(data_length)), [100 - 10*x for x in range(data_length)],
@@ -80,7 +78,7 @@ class DAQRaw:
     @classmethod
     def sample_instance_linear(cls, data_length):
         '''
-        Provides a primitive instance of the class based on the fixed given data length,
+        Provide a primitive instance of the class based on the fixed given data length,
         with data decaying linearly.
 
         Parameters
@@ -93,7 +91,7 @@ class DAQRaw:
         -------
 
         `DAQRaw`:
-            The sample class
+            The sample class.
         '''
         return cls(
             list(range(data_length)), [100*(1 - x/data_length)

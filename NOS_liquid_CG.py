@@ -16,7 +16,7 @@ class NOSLiquidCG:
     @staticmethod
     def calculate_cases(nos_volumes, tank_volumes):
         '''
-        Calculates case values based on what volume of the tank is filled.
+        Calculate case values based on what volume of the tank is filled.
 
         Case 1: volume less than v1
         Case 2: volume less than v2
@@ -38,15 +38,15 @@ class NOSLiquidCG:
         cases = []
 
         for curr_vol in nos_volumes:
-            if curr_vol <= tank_volumes[1]:
+            if curr_vol <= tank_volumes[0]:
                 cases.append(0)
-            elif tank_volumes[1] < curr_vol <= sum(tank_volumes[1:3]):
+            elif tank_volumes[0] < curr_vol <= sum(tank_volumes[:2]):
                 cases.append(1)
-            elif sum(tank_volumes[1:3]) < curr_vol <= sum(tank_volumes[1:4]):
+            elif sum(tank_volumes[:2]) < curr_vol <= sum(tank_volumes[:3]):
                 cases.append(2)
-            elif sum(tank_volumes[1:4]) < curr_vol <= sum(tank_volumes[1:5]):
+            elif sum(tank_volumes[:3]) < curr_vol <= sum(tank_volumes[:4]):
                 cases.append(3)
-            elif sum(tank_volumes[1:5]) < curr_vol <= sum(tank_volumes[1:6]):
+            elif sum(tank_volumes[:4]) < curr_vol <= sum(tank_volumes[:]):
                 cases.append(3)
             else:
                 cases.append(4)
@@ -56,14 +56,14 @@ class NOSLiquidCG:
     @staticmethod
     def calculate_liquid_heights(liquid_volume_m3, cases, tank_dimensions_m):
         '''
-        Calculates liquid heights using case to determine which cylinders in the tank have liquid
+        Calculate liquid heights using case to determine which cylinders in the tank have liquid.
 
         Parameters
         ----------
         nos_volume_m3: list of float
             The liquid volume of the NOS for each moment in time, in m3.
         cases: list of int
-            The case classification for each data point
+            The case classification for each data point.
         tank_dimensions_m: dict
             The dimensions of the tank in meters - a dict of constants.
 
@@ -77,9 +77,9 @@ class NOSLiquidCG:
         for vol, case in zip(liquid_volume_m3, cases):
             curr_liq_height = 0
 
-            curr_liq_height = sum(tank_dimensions_m['length'][1:case + 1]) +\
-                (vol - sum(tank_dimensions_m['volume'][1:case + 1])) / \
-                (pi*tank_dimensions_m['radius'][case + 1]**2)
+            curr_liq_height = sum(tank_dimensions_m['length'][:case]) +\
+                (vol - sum(tank_dimensions_m['volume'][:case])) / \
+                (pi*tank_dimensions_m['radius'][case]**2)
 
             liquid_heights_m.append(curr_liq_height)
 
@@ -89,7 +89,7 @@ class NOSLiquidCG:
     def calculate_liquid_cg(cases, liquid_height, tank_dimensions_m,
                             liquid_volume_m3, liquid_density_kg_m3, NOS_data_full=None):
         '''
-        Calculates liquid centre of gravity as average of all CG multiplied by their masses
+        Calculate liquid centre of gravity as average of all CG multiplied by their masses.
 
         Parameters
         ----------
@@ -126,33 +126,32 @@ class NOSLiquidCG:
 
             # Case 0 is special (no filled cylinders)
             if case == 0:
-                numerator = tank_dimensions_m['volume'][1] * density * liq_height / 2 *\
-                    vol * density
+                numerator = tank_dimensions_m['volume'][0] * density * liq_height / 2 *\
+                    vol
 
             # General case
             else:
                 # Adding filled cylinders
                 for idx in range(case):
-                    numerator += tank_dimensions_m['volume'][idx + 1] * density *\
-                        tank_dimensions_m['length'][idx + 1]/2
+                    numerator += tank_dimensions_m['volume'][idx] *\
+                        tank_dimensions_m['length'][idx]/2
 
                 # Accounting for partially filled cylinder
-                numerator += (liq_height + sum(tank_dimensions_m['length'][1:case + 1]))/2 *\
-                    (vol-sum(tank_dimensions_m['volume'][1:case + 1]))*density
+                numerator += (liq_height + sum(tank_dimensions_m['length'][:case]))/2 *\
+                    (vol-sum(tank_dimensions_m['volume'][:case]))
 
-#             liquid_cg_m.append(numerator/(vol*density))
-            liquid_cg_m = np.append(liquid_cg_m, numerator/(vol*density))
+            liquid_cg_m = np.append(liquid_cg_m, numerator/(vol))
 
         return liquid_cg_m
 
     def __init__(self, i_NOS_mass_and_volume, i_constants=None):
         '''
-        Initialize all base values in class
+        Initialize all base values in class.
 
         Parameters
         ----------
         i_NOS_mass_and_volume: NOSMassAndVolume object
-            Contains data pertaining to NOS mass,volume and density
+            Contains data pertaining to NOS mass,volume and density.
         i_constants: constants.ConstantsManager
             Object containing all the constants for the program. Default is None, in which case
             a default object will be imported and created.
@@ -190,16 +189,16 @@ class NOSLiquidCG:
 def create_output_file(target_path='NOS_liquid_CG_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents
+    Utility function for creating an ouput file of the class contents.
 
     Parameters
     ----------
     target_path: str
-        the name of the ouput file.
+        The name of the ouput file.
     daq_source_path: str
-        the path of the the daq file to be used for generating the file.
+        The path of the the daq file to be used for generating the file.
     downsample: int
-        how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+        How much the output needs to be downsampled by. Default value is 1 (no downsampling).
     '''
     from csv_extractor import CSVExtractor
 

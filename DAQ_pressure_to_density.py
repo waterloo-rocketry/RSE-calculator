@@ -1,6 +1,7 @@
 from math import e
-from vapour_pressure_calculations import VapourPressureCalculations
 import numpy as np
+
+from vapour_pressure_calculations import VapourPressureCalculations
 
 
 class DAQPressureToDensity:
@@ -24,16 +25,16 @@ class DAQPressureToDensity:
     @staticmethod
     def eqn4_2(curr_one_minus_t_reduced, eqn4_2_constants, critical_density):
         '''
-        Implementation of Equation 4.2 to solve liquid NOS density in kg / m^3
+        Implementation of Equation 4.2 to solve liquid NOS density in kg / m^3.
 
         Parameters
         ----------
         curr_one_minus_t_reduced: float
-            Equal to one minus the reduced temperature
+            Equal to one minus the reduced temperature.
         eqn4_2_constants: list of float
-            The constants related to this equation
+            The constants related to this equation.
         critical_density: float
-            The value of the critical density for nitrous oxide, a constant
+            The value of the critical density for nitrous oxide, a constant.
 
         Returns
         -------
@@ -41,17 +42,17 @@ class DAQPressureToDensity:
             The result of the calculation.
         '''
         result = (critical_density *
-                  e**(eqn4_2_constants[1] *
-                      curr_one_minus_t_reduced**(1/3) + eqn4_2_constants[2] *
-                      curr_one_minus_t_reduced**(2/3) + eqn4_2_constants[3] *
-                      curr_one_minus_t_reduced + eqn4_2_constants[4] *
+                  e**(eqn4_2_constants[0] *
+                      curr_one_minus_t_reduced**(1/3) + eqn4_2_constants[1] *
+                      curr_one_minus_t_reduced**(2/3) + eqn4_2_constants[2] *
+                      curr_one_minus_t_reduced + eqn4_2_constants[3] *
                       curr_one_minus_t_reduced**(4/3)))
         return result
 
     @staticmethod
     def eqn4_3(curr_recip_t_reduced_minus_one, eqn4_3_constants, critical_density):
         '''
-        Implementation of Equation 4.3 to solve for vapour NOS density in kg / m^3
+        Implementation of Equation 4.3 to solve for vapour NOS density in kg / m^3.
 
         Parameters
         ----------
@@ -68,18 +69,18 @@ class DAQPressureToDensity:
             The result of the calculation.
         '''
         result = (critical_density *
-                  e**(eqn4_3_constants[1] *
-                      curr_recip_t_reduced_minus_one**(1/3) + eqn4_3_constants[2] *
-                      curr_recip_t_reduced_minus_one**(2/3) + eqn4_3_constants[3] *
-                      curr_recip_t_reduced_minus_one + eqn4_3_constants[4] *
-                      curr_recip_t_reduced_minus_one**(4/3) + eqn4_3_constants[5] *
+                  e**(eqn4_3_constants[0] *
+                      curr_recip_t_reduced_minus_one**(1/3) + eqn4_3_constants[1] *
+                      curr_recip_t_reduced_minus_one**(2/3) + eqn4_3_constants[2] *
+                      curr_recip_t_reduced_minus_one + eqn4_3_constants[3] *
+                      curr_recip_t_reduced_minus_one**(4/3) + eqn4_3_constants[4] *
                       curr_recip_t_reduced_minus_one**(5/3)))
 
         return result
 
     def __init__(self, DAQ_data, i_constants=None):
         '''
-        Initialize all base values
+        Initialize all base values.
 
         Parameters
         ----------
@@ -99,9 +100,9 @@ class DAQPressureToDensity:
         self.vapour_pressure_data = VapourPressureCalculations()
 
         # Define and calculate reduced temperatures using numpy interpolate
-        self.t_reduced = (np.array(np.interp(DAQ_data.tank_pressure_psia,
-                                             self.vapour_pressure_data.pressure_psi,
-                                             self.vapour_pressure_data.t_kelvin)) /
+        self.t_reduced = ((np.interp(DAQ_data.tank_pressure_psia,
+                                     self.vapour_pressure_data.pressure_psi,
+                                     self.vapour_pressure_data.t_kelvin)) /
                           self.consts_m.nitrous_oxide_properties['critical_temp'])
 
         # Intermediate math
@@ -109,9 +110,10 @@ class DAQPressureToDensity:
         self.reciprocal_t_reduced_minus_one = (1 / self.t_reduced) - 1
 
         # Lists of liquid and gaseous densities
-        self.density_liquid_kg_m3 = self.eqn4_2(self.one_minus_t_reduced,
-                                                self.consts_m.equation_constants['eqn4_2'],
-                                                self.consts_m.nitrous_oxide_properties['critical_density'])
+        self.density_liquid_kg_m3 = \
+            self.eqn4_2(self.one_minus_t_reduced,
+                        self.consts_m.equation_constants['eqn4_2'],
+                        self.consts_m.nitrous_oxide_properties['critical_density'])
 
         self.gas_density_kg_m3 = \
             self.eqn4_3(self.reciprocal_t_reduced_minus_one,
@@ -119,25 +121,28 @@ class DAQPressureToDensity:
                         self.consts_m.nitrous_oxide_properties['critical_density'])
 
 
-def create_ouput_file(path='DAQ_pressure_to_density_test', downsample=1):
+def create_output_file(path='DAQ_pressure_to_density_test.csv',
+                       daq_source_path='data/test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents
+    Utility function for creating an ouput file of the class contents.
 
     Parameters
     ----------
     path: str
-        the name of the ouput file.
+        The name of the ouput file.
+    daq_source_path: str
+        The path of the the daq file to be used for generating the file.
     downsample: int
-        how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+        How much the output needs to be downsampled by. Default value is 1 (no downsampling).
     '''
     from csv_extractor import CSVExtractor
 
     ext = CSVExtractor()
-    raw_dat = ext.extract_data_to_raw_DAQ('data\\test_csv.csv')
+    raw_dat = ext.extract_data_to_raw_DAQ(daq_source_path)
 
     test_data = DAQPressureToDensity(raw_dat)
 
-    with open(path + '.csv', 'w') as test_file:
+    with open(path, 'w') as test_file:
         i = 0
         while i < len(test_data.t_reduced):
             if i % downsample == 0:

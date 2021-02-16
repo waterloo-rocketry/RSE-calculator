@@ -5,7 +5,7 @@ from DAQ_raw import DAQRaw
 
 class CSVExtractor:
     '''
-    Extracts relevant data from a .csv file
+    Extract relevant data from a .csv file.
     '''
 
     def __init__(self):
@@ -26,13 +26,13 @@ class CSVExtractor:
 
     def extract_data_to_raw_DAQ(self, file_path, downsample=1):
         '''
-        Creates a DAQRaw object from the contents of the provided csv file.
+        Create a DAQRaw object from the contents of the provided csv file.
 
         Parameters
         ----------
 
         file_path: str
-            The location of the .csv file
+            The location of the .csv file.
         downsample: int
             how much the output needs to be downsampled by. Default value is 1 (no downsampling).
         '''
@@ -49,13 +49,14 @@ class CSVExtractor:
         thrust_col_idx = -1
 
         for idx, itm in enumerate(label_table):
-            if itm == 'Time (s)':
+            p_itm = itm.strip().upper()
+            if p_itm == 'TIME (S)':
                 time_col_idx = idx
-            if itm == 'Tank Pressure (psig)':
+            if p_itm == 'TANK PRESSURE (PSIG)':
                 tank_pressure_col_idx = idx
-            if itm == 'Recorded mass (lb)':
+            if p_itm == 'RECORDED MASS (LB)':
                 recorded_mass_col_idx = idx
-            if itm == 'Thrust (lb)':
+            if p_itm == 'THRUST (LB)':
                 thrust_col_idx = idx
 
         if (time_col_idx == -1 or tank_pressure_col_idx == -1
@@ -79,12 +80,15 @@ class CSVExtractor:
                     reader[row_idx][recorded_mass_col_idx])
                 DAQ_thrust_values.append(reader[row_idx][thrust_col_idx])
 
+        csvfile.close()
+
         return DAQRaw(DAQ_times, DAQ_tank_pressures, DAQ_recorded_masses, DAQ_thrust_values)
 
-    def downsample_file(self, target_file_path, new_file_path=None, downsample=10,
+    @staticmethod
+    def downsample_file(target_file_path, new_file_path=None, downsample=10,
                         downsample_offset=0, data_possesses_header=False):
         '''
-        Downsamples a given csv file into another file.
+        Downsample a given csv file into another file.
 
         This is mostly intended for one-time command line use. Note that for subdirectories
         double backslashes should be used.
@@ -103,12 +107,12 @@ class CSVExtractor:
         downsample_offset: int
             How much the downsampling needs to be shifted forward.
         data_possesses_header: bool
-            If the data possessess a header that needs to be preserved across downsampling
+            If the data possessess a header that needs to be preserved across downsampling.
         '''
         if new_file_path is None:
             split_path = list(os.path.split(target_file_path))
             split_path[1] = 'downsampled_' + split_path[1]
-            new_file_path = os.path.join(split_path[0],split_path[1])
+            new_file_path = os.path.join(split_path[0], split_path[1])
             print('new file path: ' + new_file_path)
 
         reader = open(target_file_path, 'r')
@@ -129,5 +133,6 @@ class CSVExtractor:
                 d_writer.write(line)
             read_idx += 1
 
+        reader.close()
         d_writer.close()
         print('downsampling complete!')

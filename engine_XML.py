@@ -11,7 +11,7 @@ class EngineXML:
 
     def __init__(self, i_DAQ_data, i_engine_CG, i_constants=None):
         '''
-        Initializes all base values.
+        Initialize all base values.
 
         Parameters
         ----------
@@ -48,7 +48,7 @@ class EngineXML:
 
     def self_calculate_remaining_values(self):
         '''
-        Calculates the remaining values that were not given during initialization.
+        Calculate the remaining values that were not given during initialization.
         '''
         time = self.DAQ_data.time_s
         self.zeroed_time = time - time[0]
@@ -69,15 +69,15 @@ class EngineXML:
     @staticmethod
     def recalculate_propellant_CG_mm(prop_CG_in_val, consts_m):
         '''
-        Calculates the final centre of gravity considering the oxidizer tank location
+        Calculate the final centre of gravity considering the oxidizer tank location.
 
         Parameters
         ----------
 
         prop_CG_in_val: float
-            The time stamp, zeroed considering the start of the burn
+            The time stamp, zeroed considering the start of the burn.
         consts_m: constants.ConstantsManager
-            The constants manager containing the engine geometry data
+            The constants manager containing the engine geometry data.
 
         Returns
         -------
@@ -94,19 +94,19 @@ class EngineXML:
     @staticmethod
     def prepare_XML_tag_for_data_point(zeroed_time, thrust_N, engine_mass_g, propellant_CG_mm):
         '''
-        Calculates and returns the correct fuel mass values for a all data points.
+        Calculate and return the correct fuel mass values for a data points.
 
         Parameters
         ----------
 
         zeroed_time: float
-            The time stamp, zeroed considering the start of the burn
+            The time stamp, zeroed considering the start of the burn.
         thurst_N: float
-            The amount of force, in newtons, at this data point
+            The amount of force, in newtons, at this data point.
         engine_mass_g: float
-            The mass of the engine at the data point, in grams
+            The mass of the engine at the data point, in grams.
         propellant_CG_mm: float
-            The centre of gravity for the engine at the data point, in mm from the bottom
+            The centre of gravity for the engine at the data point, in mm from the bottom.
 
         Returns
         -------

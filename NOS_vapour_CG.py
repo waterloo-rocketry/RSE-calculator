@@ -17,7 +17,7 @@ class NOSVapourCG:
     @staticmethod
     def calculate_cases(nos_vapour_volumes, tank_volumes):
         '''
-        Calculates case values based on what volume of the tank is filled.
+        Calculate case values based on what volume of the tank is filled.
 
         Case 1: volume less than v1
         Case 2: volume less than v2
@@ -39,15 +39,15 @@ class NOSVapourCG:
         cases = []
 
         for curr_vol in nos_vapour_volumes:
-            if curr_vol <= tank_volumes[5]:
+            if curr_vol <= tank_volumes[4]:
                 cases.append(0)
-            elif tank_volumes[5] < curr_vol <= sum(tank_volumes[4:]):
+            elif tank_volumes[4] < curr_vol <= sum(tank_volumes[3:]):
                 cases.append(1)
-            elif sum(tank_volumes[4:]) < curr_vol <= sum(tank_volumes[3:]):
-                cases.append(2)
             elif sum(tank_volumes[3:]) < curr_vol <= sum(tank_volumes[2:]):
-                cases.append(3)
+                cases.append(2)
             elif sum(tank_volumes[2:]) < curr_vol <= sum(tank_volumes[1:]):
+                cases.append(3)
+            elif sum(tank_volumes[1:]) < curr_vol <= sum(tank_volumes[:]):
                 cases.append(3)
             else:
                 cases.append(4)
@@ -58,7 +58,7 @@ class NOSVapourCG:
     def calculate_vapour_cg(vapour_volume_m3, gas_density_kg_m3, cases, vapour_height,
                             tank_dimensions_m, NOS_data_full=None):
         '''
-        Calculates vapour centre of gravity as average of all CG multiplied by their masses
+        Calculate vapour centre of gravity as average of all CG multiplied by their masses.
 
         Parameters
         ----------
@@ -88,6 +88,7 @@ class NOSVapourCG:
 
         vapour_cg_m = np.array([])
 
+        # TODO: Optimize cases here
         for vol, case, height, density in zip(vapour_volume_m3,
                                               cases, vapour_height,
                                               gas_density_kg_m3):
@@ -96,28 +97,28 @@ class NOSVapourCG:
 
             # Case 0 is special (no filled cylinders)
             if case == 0:
-                numerator = tank_dimensions_m['volume'][5] * density * height / 2 *\
-                    vol * density
+                numerator = tank_dimensions_m['volume'][4] * density * height / 2 *\
+                    vol
 
             # General case
             else:
                 # Adding filled cylinders
                 for idx in range(case):
-                    numerator += tank_dimensions_m['volume'][5 - idx] * density *\
-                        tank_dimensions_m['length'][5 - idx]/2
+                    numerator += (tank_dimensions_m['volume'][4 - idx] *
+                        tank_dimensions_m['length'][4 - idx]/2)
 
                 # Accounting for partially filled cylinder
                 numerator += (height + sum(tank_dimensions_m['length'][-case:]))/2 *\
-                    (vol-sum(tank_dimensions_m['volume'][-case:]))*density
+                    (vol-sum(tank_dimensions_m['volume'][-case:]))
 
             vapour_cg_m = np.append(vapour_cg_m,
-                                    tank_dimensions_m['total_length'] - numerator/(vol*density))
+                                    tank_dimensions_m['total_length'] - numerator/(vol))
 
         return vapour_cg_m
 
     def __init__(self, i_NOS_mass_and_volume, i_NOS_liquid_CG, i_constants=None):
         '''
-        Initialize all base values in class
+        Initialize all base values in class.
 
         Parameters
         ----------
@@ -158,7 +159,7 @@ class NOSVapourCG:
 def create_output_file(target_path='NOS_vapour_CG_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents
+    Utility function for creating an ouput file of the class contents.
 
     Parameters
     ----------

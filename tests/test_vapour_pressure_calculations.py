@@ -1,27 +1,31 @@
-from builtins import round
+import numpy as np
 
 from constants import ConstantsManager as ConstsM
+from vapour_pressure_calculations import VapourPressureCalculations as VPC
 
-from vapour_pressure_calculations import VapourPressureCalculations as vpc_class
-
-SAMPLE_FILE_PATH = 'data/downsampled_vapour_pressure_sample_output.csv'
+SAMPLE_FILE_PATH = 'tests/sample_files/downsampled_vapour_pressure_sample_output.csv'
+ERROR_TOLERANCE = 0.001
 
 
 def test_eqn4_1():
-    consts = ConstsM('data\\test_constants.yaml')
+    consts = ConstsM('tests/test_constants.yaml')
 
-    vpc_sample = vpc_class()
+    vpc_sample = VPC()
     result_1 = vpc_sample.eqn4_1(0.6, 0.4, consts)
-    assert round(result_1, 3) == 107.917
+#     assert round(result_1, 3) == 107.917
+    assert np.allclose(result_1, 107.917, rtol=ERROR_TOLERANCE)
     result_2 = vpc_sample.eqn4_1(0.9, 0.1, consts)
-    assert round(result_2, 3) == 3587.583
+    #assert round(result_2, 3) == 3587.583
+    assert np.allclose(result_2, 3587.583, rtol=ERROR_TOLERANCE)
     result_3 = vpc_sample.eqn4_1(1, 0, consts)
-    assert round(result_3, 3) == 7251.0
+    assert np.allclose(result_3, 7251.0, rtol=ERROR_TOLERANCE)
+
+    #assert round(result_3, 3) == 7251.0
 
 
 def test_basic_setup():
-    consts = ConstsM('data\\test_constants.yaml')
-    vpc_sample = vpc_class(i_constants=consts)
+    consts = ConstsM('tests/test_constants.yaml')
+    vpc_sample = VPC(i_constants=consts)
 
     # Check for validity of temperature list
     assert vpc_sample.t_deg_c is not None and len(vpc_sample.t_deg_c) != 0
@@ -44,8 +48,8 @@ def test_basic_setup():
 def test_with_sample_file():
 
     sample_file = open(SAMPLE_FILE_PATH, 'r')
-    consts = ConstsM('data\\test_constants.yaml')
-    vpc_object = vpc_class(i_constants=consts)
+    consts = ConstsM('tests/test_constants.yaml')
+    vpc_object = VPC(i_constants=consts)
     downsample_factor = 10
 
     for idx in range(len(vpc_object.t_deg_c)):  # all lists the same length

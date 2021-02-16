@@ -4,13 +4,13 @@ from math import e
 
 def sigmoid(x, rise_coefficient):
     '''
-    Calculates a basic sigmoid function
+    Calculate a basic sigmoid function.
 
     Parameters
     ----------
 
     x: float
-        The x value of the sigmoid
+        The x value of the sigmoid.
     rise_coefficient: float
         The coefficient that dictates the steepness of the sigmoid.
 
@@ -26,13 +26,13 @@ def sigmoid(x, rise_coefficient):
 
 def sigmoid_advanced(start_x, amplitude, rise_coefficient, cutoff_coefficient, top_half_only):
     '''
-    Calculates a sigmoid function with more complex parameters
+    Calculate a sigmoid function with more complex parameters.
 
     Parameters
     ----------
 
     start_x: float
-        The x value of the sigmoid
+        The x value of the sigmoid.
     rise_coefficient: float
         The coefficient that dictates the steepness of the main sigmoid.
     rise_coefficient: float
@@ -140,7 +140,7 @@ def generate_weight_curve():
 
 def generate_daq_object():
     '''
-    A mock function to generate a realistic DAQ object
+    A mock function to generate a realistic DAQ object.
 
     Returns
     -------
