@@ -47,7 +47,7 @@ class NOSVapourCG:
                 cases.append(2)
             elif sum(tank_volumes[2:]) < curr_vol <= sum(tank_volumes[1:]):
                 cases.append(3)
-            elif sum(tank_volumes[1:]) < curr_vol <= sum(tank_volumes[:]):
+            elif sum(tank_volumes[1:]) < curr_vol <= sum(tank_volumes):
                 cases.append(3)
             else:
                 cases.append(4)
@@ -105,7 +105,7 @@ class NOSVapourCG:
                 # Adding filled cylinders
                 for idx in range(case):
                     numerator += (tank_dimensions_m['volume'][4 - idx] *
-                        tank_dimensions_m['length'][4 - idx]/2)
+                                  tank_dimensions_m['length'][4 - idx]/2)
 
                 # Accounting for partially filled cylinder
                 numerator += (height + sum(tank_dimensions_m['length'][-case:]))/2 *\

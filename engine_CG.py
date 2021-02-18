@@ -128,16 +128,6 @@ class EngineCG:
             liquid_cg_in = NOS_liq_CG_fulldata.liquid_cg_in
             vapour_cg_in = NOS_vap_CG_fulldata.vapour_cg_in
 
-        # Packages into itereables if single floats are passed in
-        if not hasattr(liquid_mass, '__iter__'):
-            liquid_mass = np.array([liquid_mass])
-        if not hasattr(vapour_mass, '__iter__'):
-            vapour_mass = np.array([vapour_mass])
-        if not hasattr(liquid_cg_in, '__iter__'):
-            liquid_cg_in = np.array([liquid_cg_in])
-        if not hasattr(vapour_cg_in, '__iter__'):
-            vapour_cg_in = np.array([vapour_cg_in])
-
         result = (liquid_mass * liquid_cg_in + vapour_mass * vapour_cg_in)
         result = np.divide(result, (liquid_mass + vapour_mass))
 

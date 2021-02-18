@@ -173,8 +173,8 @@ class ConstantsManager:
         return_data['volume'] = volume
 
         # sum of lengths and volumes of each segment
-        return_data['total_length'] = sum(length[:])
-        return_data['total_volume'] = sum(volume[:])
+        return_data['total_length'] = sum(length)
+        return_data['total_volume'] = sum(volume)
 
         return return_data
 
@@ -214,7 +214,7 @@ class ConstantsManager:
         return_data['volume'] = volume
 
         # sum of lengths and volumes of each segment
-        return_data['total_length'] = sum(length[:])
-        return_data['total_volume'] = sum(volume[:])
+        return_data['total_length'] = sum(length)
+        return_data['total_volume'] = sum(volume)
 
         return return_data

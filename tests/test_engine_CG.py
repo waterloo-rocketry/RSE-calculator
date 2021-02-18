@@ -13,28 +13,28 @@ SAMPLE_FILE_PATH = 'tests/sample_files/Engine_CG_sample_output.csv'
 def test_calculate_NOS_CG_values():
 
     # Basic functionality
-    assert ECG.calculate_NOS_CG_values(1, 0, 1, 0)[0] == 1
-    assert ECG.calculate_NOS_CG_values(1, 1, 0, 0)[0] == 0
-    assert ECG.calculate_NOS_CG_values(1, 1, 1, 1)[0] == 1
+    assert ECG.calculate_NOS_CG_values(1, 0, 1, 0) == 1
+    assert ECG.calculate_NOS_CG_values(1, 1, 0, 0) == 0
+    assert ECG.calculate_NOS_CG_values(1, 1, 1, 1) == 1
 
     # Additional functionality
-    assert ECG.calculate_NOS_CG_values(5, 5, 1, 1)[0] == 1
-    assert ECG.calculate_NOS_CG_values(10, 1, 1, 1)[0] == 1
-    assert ECG.calculate_NOS_CG_values(5, 5, 2, 2)[0] == 2
-    assert ECG.calculate_NOS_CG_values(2, 6, 4, 4)[0] == 4
-    assert ECG.calculate_NOS_CG_values(2, 3, 10, 20)[0] == 16
+    assert ECG.calculate_NOS_CG_values(5, 5, 1, 1) == 1
+    assert ECG.calculate_NOS_CG_values(10, 1, 1, 1) == 1
+    assert ECG.calculate_NOS_CG_values(5, 5, 2, 2) == 2
+    assert ECG.calculate_NOS_CG_values(2, 6, 4, 4) == 4
+    assert ECG.calculate_NOS_CG_values(2, 3, 10, 20) == 16
 
     # Picked data cases
-    assert np.allclose(ECG.calculate_NOS_CG_values(11.6145, 0.0105137, 18.5946, 39.997)[0],
+    assert np.allclose(ECG.calculate_NOS_CG_values(11.6145, 0.0105137, 18.5946, 39.997),
                        18.61340, rtol=ERROR_TOLERANCE)
 
-    assert np.allclose(ECG.calculate_NOS_CG_values(11.0916, 0.110046, 18.8509, 38.604)[0],
+    assert np.allclose(ECG.calculate_NOS_CG_values(11.0916, 0.110046, 18.8509, 38.604),
                        19.04496, rtol=ERROR_TOLERANCE)
 
-    assert np.allclose(ECG.calculate_NOS_CG_values(3.8884, 1.00752, 6.4026, 25.866)[0],
+    assert np.allclose(ECG.calculate_NOS_CG_values(3.8884, 1.00752, 6.4026, 25.866),
                        10.40793, rtol=ERROR_TOLERANCE)
 
-    assert np.allclose(ECG.calculate_NOS_CG_values(1.9883, 0.77356, 3.2159, 22.762)[0],
+    assert np.allclose(ECG.calculate_NOS_CG_values(1.9883, 0.77356, 3.2159, 22.762),
                        8.690501, rtol=8.690501*ERROR_TOLERANCE)
 
 

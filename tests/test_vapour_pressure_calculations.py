@@ -12,15 +12,11 @@ def test_eqn4_1():
 
     vpc_sample = VPC()
     result_1 = vpc_sample.eqn4_1(0.6, 0.4, consts)
-#     assert round(result_1, 3) == 107.917
     assert np.allclose(result_1, 107.917, rtol=ERROR_TOLERANCE)
     result_2 = vpc_sample.eqn4_1(0.9, 0.1, consts)
-    #assert round(result_2, 3) == 3587.583
     assert np.allclose(result_2, 3587.583, rtol=ERROR_TOLERANCE)
     result_3 = vpc_sample.eqn4_1(1, 0, consts)
     assert np.allclose(result_3, 7251.0, rtol=ERROR_TOLERANCE)
-
-    #assert round(result_3, 3) == 7251.0
 
 
 def test_basic_setup():

@@ -46,7 +46,7 @@ class NOSLiquidCG:
                 cases.append(2)
             elif sum(tank_volumes[:3]) < curr_vol <= sum(tank_volumes[:4]):
                 cases.append(3)
-            elif sum(tank_volumes[:4]) < curr_vol <= sum(tank_volumes[:]):
+            elif sum(tank_volumes[:4]) < curr_vol <= sum(tank_volumes):
                 cases.append(3)
             else:
                 cases.append(4)

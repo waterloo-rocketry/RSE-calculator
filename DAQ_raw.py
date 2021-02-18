@@ -1,4 +1,4 @@
-from numpy import array as n_array
+import numpy as np
 
 
 class DAQRaw:
@@ -42,12 +42,12 @@ class DAQRaw:
 
         self.data_size = len(i_time_s)
 
-        self.time_s = n_array(i_time_s).astype(float)
-        self.tank_pressure_psig = n_array(i_tank_pressure_psig).astype(float)
+        self.time_s = np.array(i_time_s).astype(float)
+        self.tank_pressure_psig = np.array(i_tank_pressure_psig).astype(float)
         self.tank_pressure_psia = None
-        self.recorded_mass_lb = n_array(i_recorded_mass_lb).astype(float)
+        self.recorded_mass_lb = np.array(i_recorded_mass_lb).astype(float)
         self.adjusted_mass_lb = None
-        self.thrust_lb = n_array(i_thrust_lb).astype(float)
+        self.thrust_lb = np.array(i_thrust_lb).astype(float)
 
         self.tank_pressure_psia = self.tank_pressure_psig + \
             self.test_cond['local_atmos_pressure']
@@ -71,9 +71,8 @@ class DAQRaw:
         `DAQRaw`:
             The sample class.
         '''
-        return cls(
-            list(range(data_length)), [100 - 10*x for x in range(data_length)],
-            [1000 - 100*x for x in range(data_length)], [1.0 - 0.1*x for x in range(data_length)])
+        time_s = np.arange(data_length)
+        return cls(time_s, 100 - 10*time_s, 1000 - 100*time_s, 1.0 - 0.1*time_s)
 
     @classmethod
     def sample_instance_linear(cls, data_length):
@@ -93,8 +92,7 @@ class DAQRaw:
         `DAQRaw`:
             The sample class.
         '''
-        return cls(
-            list(range(data_length)), [100*(1 - x/data_length)
-                                       for x in range(data_length)],
-            [1000*(1 - x/data_length) for x in range(data_length)],
-            [1.0*(1 - x/data_length) for x in range(data_length)])
+
+        time_s = np.arange(data_length)
+        return cls(time_s, 100*(1 - time_s/data_length),
+                   1000*(1 - time_s/data_length), 1.0*(1 - time_s/data_length))
