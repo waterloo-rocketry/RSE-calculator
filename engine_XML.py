@@ -83,11 +83,11 @@ class EngineXML:
         float:
             The final propellant CG in mm.
         '''
-        result = consts_m.tank_dimensions_meters['total_length']*1000
+        result = consts_m.tank_dimensions_meters['total_length']
         result += consts.inches_to_metres(
-            consts_m.engine_info['dist_to_tank_start'])*1000
-        result -= consts.inches_to_metres(prop_CG_in_val)*1000
-        return result
+            consts_m.engine_info['dist_to_tank_start'])
+        result -= consts.inches_to_metres(prop_CG_in_val)
+        return result*1000
 
     @staticmethod
     def prepare_XML_tag_for_data_point(zeroed_time, thrust_N, engine_mass_g, propellant_CG_mm):
