@@ -3,9 +3,7 @@ import numpy as np
 
 class DAQRaw:
     '''
-    A class for holding all the data arrays for the raw DAQ data.
-
-    It self-calculates all remaining fields during initialization.
+    Hold and populate all the data arrays for the raw DAQ data.
     '''
 
     def __init__(self, i_time_s, i_tank_pressure_psig,

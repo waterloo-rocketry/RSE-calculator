@@ -7,7 +7,7 @@ import numpy as np
 
 def find_volume_cylinder(r, l):
     '''
-    Returns the volume of a cylinder.
+    Return the volume of a cylinder.
 
     Parameters
     ----------
@@ -22,7 +22,7 @@ def find_volume_cylinder(r, l):
 
 def diameter_to_radius(d):
     '''
-    Converts diameter to radius
+    Convert diameter to radius.
 
     Parameters
     ----------
@@ -108,7 +108,7 @@ def pounds_to_N(pounds):
 
 class ConstantsManager:
     '''
-    A constants manager class based on configuration file loading.
+    Manage constants by loading configuration files.
     '''
     DEFAULT_PATH = 'constant_config.yaml'  # Default path of the configuration settings
 

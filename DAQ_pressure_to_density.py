@@ -25,7 +25,7 @@ class DAQPressureToDensity:
     @staticmethod
     def eqn4_2(curr_one_minus_t_reduced, eqn4_2_constants, critical_density):
         '''
-        Implementation of Equation 4.2 to solve liquid NOS density in kg / m^3.
+        Implement Equation 4.2 to solve liquid NOS density in kg / m^3.
 
         Parameters
         ----------
@@ -52,7 +52,7 @@ class DAQPressureToDensity:
     @staticmethod
     def eqn4_3(curr_recip_t_reduced_minus_one, eqn4_3_constants, critical_density):
         '''
-        Implementation of Equation 4.3 to solve for vapour NOS density in kg / m^3.
+        Implement Equation 4.3 to solve for vapour NOS density in kg / m^3.
 
         Parameters
         ----------
@@ -124,7 +124,7 @@ class DAQPressureToDensity:
 def create_output_file(path='DAQ_pressure_to_density_test.csv',
                        daq_source_path='data/test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents.
+    Create an ouput file containing the class contents.
 
     Parameters
     ----------

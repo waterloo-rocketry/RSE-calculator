@@ -13,7 +13,7 @@ class NOSMassAndVolume:
     @staticmethod
     def calculate_liquid_volume(nos_mass_kg, gas_density_kg_m3, liquid_density_kg_m3, total_v_m3):
         '''
-        Calculate the volume of the liquid
+        Calculate the volume of the liquid.
 
         Parameters
         ----------
@@ -48,7 +48,7 @@ class NOSMassAndVolume:
         Parameters
         ----------
         DAQ_data: DAQRaw Object
-            Object containing all input data (input oxidizer tank pressure)
+            Object containing all input data (input oxidizer tank pressure).
         i_constants: constants.ConstantsManager
             Object containing all the constants for the program. Default is None, in which case
             a default object will be imported and created.
@@ -90,7 +90,7 @@ class NOSMassAndVolume:
 def create_output_file(target_path='NOS_mass_and_volume_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents.
+    Create an ouput file of the class contents.
 
     Parameters
     ----------

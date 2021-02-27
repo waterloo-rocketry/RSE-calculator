@@ -8,9 +8,7 @@ from NOS_vapour_CG import NOSVapourCG
 
 class EngineCG:
     '''
-    A class for holding all the data arrays for Engine CG calculations.
-
-    It self-calculates all remaining fields during initialization.
+    Hold and populate all the data arrays for Engine CG calculations.
     '''
 
     def __init__(self, i_DAQ_data, i_NOS_vap_CG, i_NOS_liq_CG, i_constants=None):
@@ -54,7 +52,7 @@ class EngineCG:
 
     def set_end_of_burn(self, end_idx):
         '''
-        Setter for the end_of_burn field.
+        Set the end_of_burn field.
 
         Parameters
         ----------
@@ -136,7 +134,7 @@ class EngineCG:
     @staticmethod
     def calculate_fuel_mass_values(time, engine_info, end_of_burn):
         '''
-        Calculate and return the correct fuel mass values for a all data points.
+        Calculate and return the correct fuel mass values for all data points.
 
         Parameters
         ----------
@@ -146,7 +144,7 @@ class EngineCG:
         engine_info: dict of float
             Data regarding the engine - constants.
         end_of_burn: float
-            The time at which the burn is manually determined to be over
+            The time at which the burn is manually determined to be over.
 
         Returns
         -------
@@ -167,7 +165,7 @@ class EngineCG:
 def create_output_file(target_path='Engine_CG_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents.
+    Create an ouput file containing the class contents.
 
     Parameters
     ----------

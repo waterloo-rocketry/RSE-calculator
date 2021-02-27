@@ -9,6 +9,22 @@ from constants import ConstantsManager
 
 def execute_calculation(data_file_path, target_path,
                         constants_file_path=None, suppress_printout=False):
+    '''
+    Execute all calculations and save the results to an output file.
+
+    Parameters
+    ----------
+    data_file_path: str
+        This is the path pointing to the file where the DAQ data.
+    target_path: str
+        This is the path where the output is to be saved to.
+    constants_file_path: str
+        The path to the constants yaml file. Defaults to none, in which case a default one will
+        be used.
+    suppress_printout: bool
+        Whether the 'calculation successful' printout needs to be supressed or not. Default to 
+        false, which means it will print. 
+    '''
 
     constants = None
     if constants_file_path:

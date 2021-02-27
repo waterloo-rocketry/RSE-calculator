@@ -5,7 +5,7 @@ from DAQ_raw import DAQRaw
 
 class CSVExtractor:
     '''
-    Extract relevant data from a .csv file.
+    Extract relevant data from a .csv file, and manage existing files.
     '''
 
     def __init__(self):
@@ -34,7 +34,7 @@ class CSVExtractor:
         file_path: str
             The location of the .csv file.
         downsample: int
-            how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+            How much the output needs to be downsampled by. Default value is 1 (no downsampling).
         '''
         csvfile = open(file_path, newline='')
         reader = list(csv.reader(csvfile))

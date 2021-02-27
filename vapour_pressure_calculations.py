@@ -11,7 +11,7 @@ class VapourPressureCalculations:
     @staticmethod
     def eqn4_1(curr_t_reduced, curr_one_minus_t_reduced, consts_m):
         '''
-        Static method implementation of Equation 4.1 to solve for pressure in kPa.
+        Implement Equation 4.1 to solve for pressure in kPa.
 
         Parameters
         ----------
@@ -19,10 +19,10 @@ class VapourPressureCalculations:
             Reduced temperature; defined as: Temp / CriticalTemp.
 
         curr_one_minus_t_reduced: float
-            Equal to one minus the reduced temperature
+            Equal to one minus the reduced temperature.
 
         consts_m: constants.ConstantsManager
-            The constants manager that contains all of the constants loaded from file
+            The constants manager that contains all of the constants loaded from file.
         '''
         # Using Equation 4.1 to solve for pressure
         result = consts_m.nitrous_oxide_properties['critical_pressure'] * \
@@ -68,14 +68,14 @@ class VapourPressureCalculations:
 
 def create_output_file(path='vapour_pressure_test.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents.
+    Create an ouput file containing the class contents.
 
     Parameters
     ----------
     path: str
-        the name of the ouput file.
+        The name of the ouput file.
     downsample: int
-        how much the output needs to be downsampled by. Default value is 1 (no downsampling).
+        How much the output needs to be downsampled by. Default value is 1 (no downsampling).
     '''
     test_data = VapourPressureCalculations()
 

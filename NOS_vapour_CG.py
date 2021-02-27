@@ -9,9 +9,8 @@ from constants import ConstantsManager as ConstsM
 
 class NOSVapourCG:
     '''
-    A class for holding all the data arrays for NOS vapour CG calculations.
-
-    It self-calculates all remaining fields during initialization.
+    Use oxidizer tank mass and volume data to calculate data related
+    to the NOS vapour centre of gravity.
     '''
 
     @staticmethod
@@ -124,7 +123,7 @@ class NOSVapourCG:
         ----------
         i_NOS_mass_and_volume: NOSMassAndVolume object
             Contains data pertaining to NOS mass,volume and density
-        i_NOS_liquid_CG: NOSLiquidCG object 
+        i_NOS_liquid_CG: NOSLiquidCG object
             The details about the NOS centre of gravity
         i_constants: constants.ConstantsManager
             Object containing all the constants for the program. Default is None, in which case
@@ -159,7 +158,7 @@ class NOSVapourCG:
 def create_output_file(target_path='NOS_vapour_CG_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents.
+    Create an ouput file containing the class contents.
 
     Parameters
     ----------

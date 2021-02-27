@@ -4,9 +4,7 @@ from constants import ConstantsManager as ConstsM
 
 class EngineXML:
     '''
-    A class for holding all the data arrays for Engine XML calculations.
-
-    It self-calculates all remaining fields during initialization.
+    Generate XML tags for all data.
     '''
 
     def __init__(self, i_DAQ_data, i_engine_CG, i_constants=None):
@@ -94,7 +92,7 @@ class EngineXML:
     @staticmethod
     def prepare_XML_tag_for_data_point(zeroed_time, thrust_N, engine_mass_g, propellant_CG_mm):
         '''
-        Calculate and return the correct fuel mass values for a data points.
+        Prepare a XML tag for the given values.
 
         Parameters
         ----------

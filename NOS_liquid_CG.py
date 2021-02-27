@@ -8,9 +8,8 @@ from NOS_mass_and_volume import NOSMassAndVolume
 
 class NOSLiquidCG:
     '''
-    A class for holding all the data arrays for NOS liquid CG calculations.
-
-    It self-calculates all remaining fields during initialization.
+    Use oxidizer tank mass and volume data to calculate data related
+    to the NOS liquid centre of gravity.
     '''
 
     @staticmethod
@@ -189,7 +188,7 @@ class NOSLiquidCG:
 def create_output_file(target_path='NOS_liquid_CG_test.csv',
                        daq_source_path='test_csv.csv', downsample=1):
     '''
-    Utility function for creating an ouput file of the class contents.
+    Create an ouput file containing the class contents.
 
     Parameters
     ----------

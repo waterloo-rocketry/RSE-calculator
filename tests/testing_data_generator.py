@@ -59,8 +59,7 @@ def sigmoid_advanced(start_x, amplitude, rise_coefficient, cutoff_coefficient, t
 
 def thrust_function_model(x):
     '''
-    Based on some very rough approximation, a thrust function that can be used for
-    generating DAQ data.
+    Based on some very rough approximations, generate a thrust DAQ value for a specific x value.
 
     Parameters
     ----------
@@ -87,7 +86,7 @@ def thrust_function_model(x):
 
 def generate_thrust_curve():
     '''
-    Based on some very rough approximation, a function to generate a thrust curve.
+    Based on some very rough approximations, generate a full thrust curve.
 
     Returns
     -------
@@ -99,7 +98,7 @@ def generate_thrust_curve():
 
 def generate_pressure_curve():
     '''
-    Based on some very rough approximation, a function to generate a pressure curve.
+    Based on some very rough approximations, generate a pressure curve.
 
     Returns
     -------
@@ -111,7 +110,7 @@ def generate_pressure_curve():
 
 def weight_function_model(x):
     '''
-    Based on some very rough approximation, a function that gives a weight for an instant in time.
+    Based on some very rough approximations, generate a weight DAQ value for a specific x value.
 
     Parameters
     ----------
@@ -128,7 +127,7 @@ def weight_function_model(x):
 
 def generate_weight_curve():
     '''
-    Based on some very rough approximation, a function to generate a weight curve.
+    Based on some very rough approximations, generate a weight curve.
 
     Returns
     -------
@@ -140,7 +139,7 @@ def generate_weight_curve():
 
 def generate_daq_object():
     '''
-    A mock function to generate a realistic DAQ object.
+    Generate a realistic DAQ object.
 
     Returns
     -------
