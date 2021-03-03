@@ -1,67 +1,220 @@
 #!/usr/bin/env/python
 from math import pi
+import copy
+import yaml
+import numpy as np
 
-#Returns volume of cylinder given radius and length
-def find_volume_cylinder(r,l):
+
+def find_volume_cylinder(r, l):
+    '''
+    Return the volume of a cylinder.
+
+    Parameters
+    ----------
+    r: float
+        Radius of the cylinder.
+
+    l: float
+        Height of the cylinder.
+    '''
     return pi * r * r * l
 
-#Converts diameter to radius (divide it by two)
+
 def diameter_to_radius(d):
-    return d/2
+    '''
+    Convert diameter to radius.
 
-#Converts value in inches to metres
+    Parameters
+    ----------
+    d: float
+        Diameter to be converted to radius.
+    '''
+    return np.divide(d, 2)
+
+
 def inches_to_metres(inches):
-    return inches / 39.37
+    '''
+    Convert a value in inches to metres.
 
-#Oxidizer tank dimensions (inches and cubic inches)
-#Tank can be divided into 5 parts, represented by 5 different diameters and lengths
-class TankDimensionsInches:
-    diameter = (None, 2.5, 3, 3.625, 3, 2.5)
-    length = (None, 0.5, 0.75, 37.125, 0.75, 0.875)
-    radius = (None, diameter_to_radius(diameter[1]), diameter_to_radius(diameter[2]), diameter_to_radius(diameter[3]), diameter_to_radius(diameter[4]), diameter_to_radius(diameter[5]))
-    volume = (None, find_volume_cylinder(radius[1],length[1]), find_volume_cylinder(radius[2],length[2]),find_volume_cylinder(radius[3],length[3]),find_volume_cylinder(radius[4],length[4]),find_volume_cylinder(radius[5],length[5]))
+    Parameters
+    ----------
+    inches: float
+        Value in inches to be converted to metres.
+    '''
+    return np.divide(inches, 39.37007874)
 
-    total_length = sum(length, 1)
-    total_volume = sum(volume, 1)
 
-#Oxidizer tank dimensions (metres and cubic metres)
-#Uses values from TankDimensionsInches to calculate metric equivalents
-class TankDimensionsMetres:
-    diameter = (None, inchesToMetres(TankDimensionsInches.diameter[1]), inchesToMetres(TankDimensionsInches.diameter[2]), inchesToMetres(TankDimensionsInches.diameter[3]), inchesToMetres(TankDimensionsInches.diameter[4]), inchesToMetres(TankDimensionsInches.diameter[5]))
-    length = (None, inchesToMetres(TankDimensionsInches.length[1]), inchesToMetres(TankDimensionsInches.length[2]), inchesToMetres(TankDimensionsInches.length[3]), inchesToMetres(TankDimensionsInches.length[4]), inchesToMetres(TankDimensionsInches.length[5]))
-    radius = (None, diameter_to_radius(diameter[1]), diameter_to_radius(diameter[2]), diameter_to_radius(diameter[3]), diameter_to_radius(diameter[4]), diameter_to_radius(diameter[5]))
-    volume = (None, find_volume_cylinder(radius[1],length[1]), find_volume_cylinder(radius[2],length[2]),find_volume_cylinder(radius[3],length[3]),find_volume_cylinder(radius[4],length[4]),find_volume_cylinder(radius[5],length[5]))
+def metres_to_inches(metres):
+    '''
+    Convert a value in metres to inches.
 
-    #sum of lengths and volumes
-    total_length = sum(length, 1)
-    total_volume = sum(volume, 1)
+    Parameters
+    ----------
+    metres: float
+        Value in metres to be converted to inches.
+    '''
 
-#Properties of Nitrous Oxide (taken from ESDU 91022)
-class NitrousOxideProperties:
-    critical_temp = 309.57        #kelvin (k)
-    critical_pressure = 7251      #kilopascals (kPa)
-    critical_density = 452        #kilograms per metres cubed (kg/m^3)
+    return metres * 39.37007874
 
-#Constants for equations 4.1, 4.2, 4.3 (taken from ESDU 91022)
-class EquationConstants:
-    eqn4_1 = (None,-6.71893, 1.35966, -1.3779, -4.051)
-    eqn4_2 = (None, 1.72328, -0.8395, 0.5106, -0.10412)
-    eqn4_3 = (None, -1.009, -6.28792, 7.50332, -7.90463, 0.629427)
 
-#Engine Information
-class EngineInfo:
-    #Distance from the bottom of the fuel grain to the bottom of the oxidizer tank
-    dist_to_tank_start = 25          #inches (in)
+def pascals_to_psi(pascals):
+    '''
+    Convert a value in pascals to psi.
 
-    fuel_grain_length = 24           #inches (in)
-    fuel_grain_init_mass = 6.929129  #pounds (lb)
-    fuel_grain_final_mass = 2.69     #pounds (lb)
+    Parameters
+    ----------
+    pascals: float
+        Value in pascals to be converted to psi.
+    '''
+    return pascals * 0.00014503773
 
-    #need to update this later but im too lazy to do that now so will get to it when I get to it
-    #Used by OpenRocket
-    initWt = 0                       #grams (g)
-    propWt = 0                       #grams (g)
 
-class TestConditions:
-    local_atmos_pressure = 14.383    #pounds per square inch (psi)
-    water_used_for_heating = 15      #pounds (lb)
+def pounds_to_kg(pounds):
+    '''
+    Convert a value in pounds to kg.
+
+    Parameters
+    ----------
+    pounds: float
+        Value in pounds to be converted to kilograms.
+    '''
+    return 0.45359237 * pounds
+
+
+def kg_to_pounds(kg):
+    '''
+    Convert a value in kg to pounds.
+
+    Parameters
+    ----------
+    kg: float
+        Value in kg to be converted to pounds.
+    '''
+
+    return 2.20462262185 * kg
+
+
+def pounds_to_N(pounds):
+    '''
+    Convert a value in pounds force to newtons.
+
+    Parameters
+    ----------
+    pounds: float
+        Value in pounds to be converted to newtons.
+    '''
+    return 4.44822 * pounds
+
+
+class ConstantsManager:
+    '''
+    Manage constants by loading configuration files.
+    '''
+    DEFAULT_PATH = 'constant_config.yaml'  # Default path of the configuration settings
+
+    def __init__(self, path=DEFAULT_PATH):
+        self.tank_dimensions_inches = {}
+        self.tank_dimensions_meters = {}
+        self.nitrous_oxide_properties = {}
+        self.engine_info = {}
+        self.test_conditions = {}
+
+        self.load_config(path)
+
+    def load_config(self, path):
+        '''
+        Load the configuration at the target path into local fields.
+
+        Parameters
+        ----------
+        path: str
+            The path at which the configuration file is.
+
+        '''
+
+        with open(path) as file:
+            data = yaml.load(file, Loader=yaml.FullLoader)
+
+        self.tank_dimensions_inches = self.load_tank_dims_inches(
+            data['TankDimensionsInches'])
+        self.tank_dimensions_meters = self.load_tank_dims_meters(
+            self.tank_dimensions_inches)
+        self.nitrous_oxide_properties = data['NitrousOxideProperties']
+        self.equation_constants = data['EquationConstants']
+        self.engine_info = data['EngineInfo']
+        self.test_conditions = data['TestConditions']
+
+    @staticmethod
+    def load_tank_dims_inches(yaml_data):
+        '''
+        Process and complete tank dimension data.
+
+        Parameters
+        ----------
+        yaml_data: dict
+            The base data from the configuration file.
+
+        Returns
+        -------
+
+        dict:
+            A new dict containing the complete data concerning the tank dimensions. This will
+            be of the same format as the yaml file, but with added fields for volumes and sums.
+        '''
+
+        diameter = np.array(yaml_data['diameter'])
+        length = np.array(yaml_data['length'])
+
+        radius = diameter_to_radius(diameter)
+        volume = find_volume_cylinder(radius, length)
+
+        return_data = copy.deepcopy(yaml_data)
+        return_data['radius'] = radius
+        return_data['volume'] = volume
+
+        # sum of lengths and volumes of each segment
+        return_data['total_length'] = sum(length)
+        return_data['total_volume'] = sum(volume)
+
+        return return_data
+
+    @staticmethod
+    def load_tank_dims_meters(inches_data):
+        '''
+        Convert the tank dimensions data dict in inches to a new one in meters.
+
+        Parameters
+        ----------
+        inches_data: dict
+            The data in inches
+
+        Returns
+        -------
+
+        dict:
+            A new dict containing the complete data concerning the tank dimensions, but in meters.
+        '''
+        return_data = {}
+
+        # Diameter of each tank segment
+        diameter = inches_to_metres(inches_data['diameter'])
+
+        # Length of each tank segment
+        length = inches_to_metres(inches_data['length'])
+
+        # Radius of each tank segment
+        radius = inches_to_metres(inches_data['radius'])
+
+        # Volume of each tank segment
+        volume = find_volume_cylinder(radius, length)
+
+        return_data['diameter'] = diameter
+        return_data['length'] = length
+        return_data['radius'] = radius
+        return_data['volume'] = volume
+
+        # sum of lengths and volumes of each segment
+        return_data['total_length'] = sum(length)
+        return_data['total_volume'] = sum(volume)
+
+        return return_data

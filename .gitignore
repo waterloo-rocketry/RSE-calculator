@@ -1,0 +1,11 @@
+# Pycache
+
+__pycache__
+
+# IDE directories
+
+.pydevproject
+.project
+
+# Linter
+.pylintrc

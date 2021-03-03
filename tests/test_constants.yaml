@@ -1,0 +1,35 @@
+# Reminders/clarifications: 
+# - this is YAML, so NO TABS or the parser will die!
+# - unless source code is changed, do not remove any fields (as of 2021-02-15)
+
+--- 
+TankDimensionsInches:
+    diameter: [2.5, 3, 3.625, 3, 2.5]        #Inches (in)
+    length: [0.5, 0.75, 37.125, 0.75, 0.875] #Inches (in)
+
+NitrousOxideProperties:
+    critical_temp: 309.57          #kelvin (k)
+    critical_pressure: 7251.0      #kilopascals (kPa)
+    critical_density: 452.0        #kilograms per metres cubed (kg/m^3)
+    
+EquationConstants:
+    eqn4_1: [-6.71893, 1.35966, -1.3779, -4.051]             #Dimensionless
+    eqn4_2: [1.72328, -0.8395, 0.5106, -0.10412]             #Dimensionless
+    eqn4_3: [-1.009, -6.28792, 7.50332, -7.90463, 0.629427]  #Dimensionless
+
+EngineInfo:
+    #Distance from the bottom of the fuel grain to the bottom of the oxidizer tank
+    dist_to_tank_start: 25          #inches (in)
+
+    fuel_grain_length: 24           #inches (in)
+    fuel_grain_init_mass: 6.929129  #pounds (lb)
+    fuel_grain_final_mass: 2.69     #pounds (lb)
+
+    #Used by OpenRocket
+    initWt: 0                       #grams (g)
+    propWt: 0                       #grams (g)
+
+TestConditions:
+    local_atmos_pressure: 14.383    #pounds per square inch (psi)
+    water_used_for_heating: 15      #pounds (lb)
+    end_of_burn: 395.1              #seconds (s)
