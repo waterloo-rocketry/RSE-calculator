@@ -83,6 +83,7 @@ class EngineXML:
         float:
             The final propellant CG in mm.
         '''
+
         result = consts_m.tank_dimensions_meters['total_length']
         result += consts.inches_to_metres(
             consts_m.engine_info['dist_to_tank_start'])

@@ -2,7 +2,6 @@ import numpy as np
 
 from constants import pascals_to_psi
 
-
 class VapourPressureCalculations:
     '''
     Establish the vapour pressure of NOS between -90 and 36 degrees Celsius.

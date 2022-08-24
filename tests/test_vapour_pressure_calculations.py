@@ -6,6 +6,11 @@ from vapour_pressure_calculations import VapourPressureCalculations as VPC
 SAMPLE_FILE_PATH = 'tests/sample_files/downsampled_vapour_pressure_sample_output.csv'
 ERROR_TOLERANCE = 0.001
 
+# To combat some odd floating-point behavoir that occurs when recording sample files
+# (the number of given decimal digits seems to vary when the class is called under
+# different circumstances)
+FLOATING_POINT_ERROR_TOLERANCE = 0.000001 
+
 
 def test_eqn4_1():
     consts = ConstsM('tests/test_constants.yaml')
@@ -56,5 +61,11 @@ def test_with_sample_file():
             assert vpc_object.t_reduced[idx] == float(current_line_split[2])
             assert vpc_object.one_minus_t_reduced[idx] == float(
                 current_line_split[3])
-            assert vpc_object.pressure_kpa[idx] == float(current_line_split[4])
-            assert vpc_object.pressure_psi[idx] == float(current_line_split[5])
+            
+            assert np.allclose(vpc_object.pressure_kpa[idx],
+                                float(current_line_split[4]),
+                                rtol = FLOATING_POINT_ERROR_TOLERANCE)
+
+            assert np.allclose(vpc_object.pressure_psi[idx], float(current_line_split[5]),
+                               rtol = FLOATING_POINT_ERROR_TOLERANCE)
+                               

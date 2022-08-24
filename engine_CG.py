@@ -71,12 +71,15 @@ class EngineCG:
         self.NOS_CG_in = np.array(self.calculate_NOS_CG_values(0, 0, 0, 0,
                                                                self.NOS_liq_CG, self.NOS_vap_CG))
 
+        # Commented out 2022-08-23 since functionality may be moved into DAQRaw
         # Double dereference has to occur because of how numpy arrays indexing works
-        self.set_end_of_burn(
-            np.where(self.DAQ_data.time_s == self.consts_m.test_conditions['end_of_burn'])[0][0])
+        # self.set_end_of_burn(
+        #     np.where(self.DAQ_data.time_s == self.consts_m.test_conditions['end_of_burn'])[0][0])
+
         self.fuel_mass_lb = np.array(
             self.calculate_fuel_mass_values(self.DAQ_data.time_s,
-                                            self.consts_m.engine_info, self.end_of_burn))
+                                            self.consts_m.engine_info,
+                                            self.DAQ_data.end_of_burn_idx))
 
         self.propellant_mass_lb = self.fuel_mass_lb + self.DAQ_data.adjusted_mass_lb
 
