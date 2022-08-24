@@ -128,7 +128,7 @@ def parameter_sweep_mode(config):
         os.mkdir(target_folder_path)
 
     for itm in config['factors_to_simulate']:
-        target_path = os.path.join(target_folder_path, f'timestretch_factor_{itm}.csv')
+        target_path = os.path.join(target_folder_path, f'timestretch_factor_{itm}.txt')
         target_parameters = {'timestretch_factor' : itm}
         execute_calculation(daq_path, target_path, modification_parameters = target_parameters)
 
