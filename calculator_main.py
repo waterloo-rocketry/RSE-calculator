@@ -40,7 +40,8 @@ def execute_calculation(data_file_path, target_path, modification_parameters=Non
     extractor = CSVExtractor()
     DAQ_data = extractor.extract_data_to_raw_DAQ(data_file_path)
 
-    DAQ_data = timestrech_thurst_curve(DAQ_data, modification_parameters['timestretch_factor'])
+    if modification_parameters:
+        DAQ_data = timestrech_thurst_curve(DAQ_data, modification_parameters['timestretch_factor'])
     
     if DEBUG_MODE:
         print('Burn impulse after time-stretch is ' + str(get_burn_impulse(DAQ_data)))
@@ -88,6 +89,8 @@ def default_mode():
             target_path = 'outputxml.txt'
     else:
         target_path = TARGET_PATH
+
+    execute_calculation(daq_path, target_path)
     
 
 def parameter_sweep_mode(config):

@@ -180,6 +180,7 @@ class NOSLiquidCG:
                                      self.NOS_mass_and_volume_data.
                                      DAQ_pressure_to_density_data.density_liquid_kg_m3)
 
+        print(self.liquid_cg_m)
         self.liquid_mass_lb = kg_to_pounds(
             self.NOS_mass_and_volume_data.liquid_mass_kg)
         self.liquid_cg_in = metres_to_inches(self.liquid_cg_m)

@@ -53,13 +53,30 @@ class DAQRaw:
         '''
         Calculate fields that are not given directy through DAQ data.
         '''
+
+
+        if not self.test_cond["end_idx"]:
+            self.end_of_burn_idx = self.find_idx_of_nearest(list(self.time_s),
+                                                self.test_cond['end_of_burn'])
+        else:
+            self.end_of_burn_idx = self.test_cond["end_idx"]
+
+        # If the start time (or index) is nonzero, 
+        # the dataset mut be trimmed since the calculator was not initally written to support such functionality
+        if self.test_cond["start_idx"]:  
+            self.start_idx = self.test_cond["start_idx"]
+            self.time_s = self.time_s[self.start_idx:]
+            self.tank_pressure_psig = np.array(self.tank_pressure_psig[self.start_idx:])
+            self.recorded_mass_lb = self.recorded_mass_lb[self.start_idx:]
+            self.thrust_lb = self.thrust_lb[self.start_idx:]
+            self.end_of_burn_idx -= self.start_idx
+        else:
+            self.start_idx = "NOT-SPECIFIED"
+
         self.tank_pressure_psia = self.tank_pressure_psig + \
             self.test_cond['local_atmos_pressure']
         self.adjusted_mass_lb = self.recorded_mass_lb - \
             self.test_cond['water_used_for_heating']
-
-        self.end_of_burn_idx = self.find_idx_of_nearest(list(self.time_s),
-                                             self.test_cond['end_of_burn'])
 
     @staticmethod
     def find_idx_of_nearest(array, value):

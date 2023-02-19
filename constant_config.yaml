@@ -19,17 +19,21 @@ EquationConstants:
 
 EngineInfo:
     #Distance from the bottom of the fuel grain to the bottom of the oxidizer tank
-    dist_to_tank_start: 25          #inches (in)
+    dist_to_tank_start: 42.8          #inches (in)
 
-    fuel_grain_length: 24           #inches (in)
-    fuel_grain_init_mass: 6.929129  #pounds (lb)
-    fuel_grain_final_mass: 2.69     #pounds (lb)
+    fuel_grain_length: 25.92           #inches (in)
+    fuel_grain_init_mass: 11.859  #pounds (lb)
+    fuel_grain_final_mass: 1     #pounds (lb)
 
     #Used by OpenRocket
     initWt: 0                       #grams (g)
     propWt: 0                       #grams (g)
 
 TestConditions:
-    local_atmos_pressure: 14.383    #pounds per square inch (psi)
-    water_used_for_heating: 15      #pounds (lb)
+    local_atmos_pressure: 14.710    #pounds per square inch (psi)
+    water_used_for_heating: 0      #pounds (lb) (also includes the mass of any other plumbing/tank mass)
     end_of_burn: 395.1              #seconds (s)
+
+    # For inputting indices directly, will be prioritized if set. To un-set, specify these as False
+    start_idx: 24890   #array index
+    end_idx: 112000     #array index
